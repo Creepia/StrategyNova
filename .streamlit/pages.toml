@@ -1,0 +1,9 @@
+[[pages]]
+path = "web_ui.py"
+name = "Home"
+icon = "🏠"
+
+[[pages]]
+path = "other_pages/download.py"
+name = "Download"
+icon = "⬇️"
