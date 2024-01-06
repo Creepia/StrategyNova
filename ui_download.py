@@ -7,7 +7,7 @@ from st_pages import show_pages_from_config
 # Show pages
 show_pages_from_config()
 
-st.write('#### Download')
+'#### Download'
 
 set_name = st.text_input('set_name', 'default_set')
 
@@ -33,9 +33,9 @@ if st.button('Download Online Data'):
         v.to_csv(f'source/{set_name}/{k}.csv')
     prg_download_online_data.progress(100,'Finished')
 
-st.write('#### Quick View')
+'---'
 
-current_view = st.selectbox('Source Data', tuple(os.listdir('source')))
+current_view = st.selectbox('Stock Set', tuple(os.listdir('source')))
 st.write(pd.DataFrame({
     'stock_file':os.listdir(f'source/{current_view}'),
     'size':os.path.getsize(f'source/{current_view}'),

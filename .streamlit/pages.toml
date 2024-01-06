@@ -9,6 +9,6 @@ name = "Download"
 icon = "⬇️"
 
 [[pages]]
-path = "ui_strategies.py"
-name = "Strategies"
-icon = "📈"
+path = "ui_indicators.py"
+name = "Indicators"
+icon = "🧮"
