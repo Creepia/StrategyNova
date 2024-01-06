@@ -1,9 +1,0 @@
-[[pages]]
-path = "web_ui.py"
-name = "Home"
-icon = "🏠"
-
-[[pages]]
-path = "download.py"
-name = "Download"
-icon = "⬇️"
