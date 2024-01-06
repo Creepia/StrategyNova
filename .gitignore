@@ -1,2 +1,4 @@
 .history/*
 source/*
+source/**
+applied_indicators/*

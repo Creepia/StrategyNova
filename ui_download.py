@@ -30,13 +30,5 @@ if st.button('Download Online Data'):
     data = ef.stock.get_quote_history(stocks,begin_date,end_date,klt=101)
     prg_download_online_data.progress(50,'Saving...')
     for k,v in data.items():
-        v.to_csv(f'source/{set_name}/{k}.csv')
+        v.to_csv(f'source/{set_name}/{k}.csv',index=False)
     prg_download_online_data.progress(100,'Finished')
-
-'---'
-
-current_view = st.selectbox('Stock Set', tuple(os.listdir('source')))
-st.write(pd.DataFrame({
-    'stock_file':os.listdir(f'source/{current_view}'),
-    'size':os.path.getsize(f'source/{current_view}'),
-    }))
