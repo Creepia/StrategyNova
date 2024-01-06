@@ -4,6 +4,6 @@ name = "Home"
 icon = "🏠"
 
 [[pages]]
-path = "download.py"
+path = "other_pages/download.py"
 name = "Download"
 icon = "⬇️"

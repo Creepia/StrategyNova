@@ -1,8 +1,9 @@
-import streamlit as st
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
+import efinance as ef
+import streamlit as st
 from st_pages import show_pages_from_config, add_page_title
 
 # Specify what pages should be shown in the sidebar, and what their titles and icons

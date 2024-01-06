@@ -3,11 +3,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
-from st_pages import show_pages_from_config, add_page_title
+# import efinance as ef
+# from st_pages import show_pages_from_config, add_page_title
 
 # Specify what pages should be shown in the sidebar, and what their titles and icons
 # should be
-show_pages_from_config()
+# show_pages_from_config()
 # Using object notation
 add_selectbox = st.sidebar.selectbox(
     "How would you like to be contacted?",
@@ -42,3 +43,5 @@ st.pyplot()
 # 加入交互控件，如输入框
 number = st.number_input("Insert a number", 123)
 st.write("输入的数字是：", number)
+if __name__ == '__main__':
+pass
