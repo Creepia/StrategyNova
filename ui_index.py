@@ -1,14 +1,13 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from st_pages import show_pages_from_config
 import os
 
-for folder in ['source/default_set','applied_indicators/default_set']:
+for folder in ['source/default_set','applied_indicators/default_set','signals/default_set']:
     if not os.path.exists(folder):
         os.makedirs(folder)
 
+# Show pages
 show_pages_from_config()
 
 '**This is an experimental ui for strategy research**'

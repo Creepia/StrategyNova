@@ -1,4 +1,3 @@
-import pandas as pd
 import os
 import efinance as ef
 import streamlit as st
