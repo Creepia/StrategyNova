@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 from st_pages import show_pages_from_config
 import os
 
@@ -61,7 +60,6 @@ def testback_data(buy_signals,initial_cash = 1000000):
         backtest_row = pd.DataFrame({'index': date, 'Close': close, 'Signal': signal, 'Position': position, 'Equity': equity}, index=[0])
         # if both DataFrames non empty
         backtest = backtest.copy() if backtest_row.empty else backtest_row.copy() if backtest.empty else pd.concat([backtest, backtest_row])
-
     return backtest
 
 # Show pages

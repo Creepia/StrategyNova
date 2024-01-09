@@ -22,3 +22,18 @@ icon = "💹"
 path = "ui_testback.py"
 name = "Testback"
 icon = "🕵️"
+
+[[pages]]
+path = "ui_summary.py"
+name = "Summary"
+icon = "𝄜"
+
+[[pages]]
+path = "ui_monitor.py"
+name = "Monitor"
+icon = "📺"
+
+[[pages]]
+path = "ui_analysis.py"
+name = "Analysis"
+icon = "📊"
