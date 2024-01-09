@@ -3,7 +3,7 @@ import pandas as pd
 from st_pages import show_pages_from_config
 import os
 
-for folder in ['source/default_set','applied_indicators/default_set','signals/default_set']:
+for folder in ['source/default_set','applied_indicators/default_set','signals/default_set','testback/default_set','result/default_set']:
     if not os.path.exists(folder):
         os.makedirs(folder)
 

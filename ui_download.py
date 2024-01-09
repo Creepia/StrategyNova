@@ -1,4 +1,5 @@
 import os
+# efiniance data seems from https://fund.eastmoney.com/
 import efinance as ef
 import streamlit as st
 from st_pages import show_pages_from_config
@@ -30,4 +31,4 @@ if st.button('Download Online Data'):
     prg_download_online_data.progress(50,'Saving...')
     for k,v in data.items():
         v.to_csv(f'source/{set_name}/{k}.csv',index=False)
-    prg_download_online_data.progress(100,'Finished')
+    prg_download_online_data.progress(100,'Download finished! You may go to indicator page for adding indicators for the stock set.')

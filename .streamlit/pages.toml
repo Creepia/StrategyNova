@@ -17,3 +17,8 @@ icon = "🧮"
 path = "ui_signals.py"
 name = "Signals"
 icon = "💹"
+
+[[pages]]
+path = "ui_testback.py"
+name = "Testback"
+icon = "🕵️"
