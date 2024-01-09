@@ -23,7 +23,12 @@ class Expression:
             '<=':3,
             '==':3,
             'crossup':3,
-            'crossdown':3
+            'crossdown':3,
+            '+':4,
+            '-':4,
+            '*':5,
+            '/':5,
+            '**':6
         }
         for token in s.split(' '):
             if token in self.precedences:
@@ -84,6 +89,16 @@ class Expression:
         elif op == 'crossdown':
             signals=pd.Series(np.where((x.shift() > y.shift()) & (x < y),'buy',None))
             self.values_stack.append(signals)
+        elif op=='+':
+            self.values_stack.append(x+y)
+        elif op=='-':
+            self.values_stack.append(x-y)
+        elif op=='*':
+            self.values_stack.append(x*y)
+        elif op=='/':
+            self.values_stack.append(x/y)
+        elif op=='**':
+            self.values_stack.append(x**y)
         # print(self.values_stack[-1],'==============\n==============',sep='\n')
     def repeatOps(self,op):
         while len(self.values_stack)>1 and self.precedences[op]<=self.precedences[self.symbols_stack[-1]]:
