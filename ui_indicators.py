@@ -69,7 +69,7 @@ def add_ind_params(ind):
         _params_mfi_days = int(st.text_input('days',14))
     elif ind=='OBV':
         pass
-    elif ind=='OBV':
+    elif ind=='RVI':
         global _params_rvi_days
         _params_rvi_days = int(st.text_input('days',10))
 
@@ -139,36 +139,62 @@ def add_ind_to_df(ind,df):
             st.error(f'Indicator {ind} needs "收盘" and "最高" and "最低" columns')
     elif ind=='M_DI':
         if('收盘' in df and '最高' in df and '最低' in df):
-            df["M_DI"]=tal.MINUS_DI(df["收盘"],timeperiod=_params_sma_days)
+            df["M_DI"]=tal.MINUS_DI(df['最高'],df['最低'],df['收盘'],timeperiod=_params_mdi_days)
         else:
-            st.error(f'Indicator {ind} needs "收盘" column')
+            st.error(f'Indicator {ind} needs "收盘" and "最高" and "最低" columns')
     elif ind=='P_DI':
-        if('收盘' in df):
-            df["SMA10"]=tal.SMA(df["收盘"],timeperiod=_params_sma_days)
+        if('收盘' in df and '最高' in df and '最低' in df):
+            df["P_DI"]=tal.PLUS_DI(df['最高'],df['最低'],df['收盘'],timeperiod=_params_pdi_days)
         else:
-            st.error(f'Indicator {ind} needs "收盘" column')
+            st.error(f'Indicator {ind} needs "收盘" and "最高" and "最低" columns')
     elif ind=='ADXR':
-        if('收盘' in df):
-            df["SMA10"]=tal.SMA(df["收盘"],timeperiod=_params_sma_days)
+        if('收盘' in df and '最高' in df and '最低' in df):
+            df["ADXR"]=tal.ADXR(df['最高'],df['最低'],df['收盘'],timeperiod=_params_adxr_days)
         else:
-            st.error(f'Indicator {ind} needs "收盘" column')
+            st.error(f'Indicator {ind} needs "收盘" and "最高" and "最低" columns')
     elif ind=='MFI':
-        if('收盘' in df):
-            df["SMA10"]=tal.SMA(df["收盘"],timeperiod=_params_sma_days)
+        if('收盘' in df and '最高' in df and '最低' in df and '成交量' in df):
+            df["MFI"]=tal.MFI(df['最高'],df['最低'],df['收盘'],df['成交量'],timeperiod=_params_mfi_days)
         else:
-            st.error(f'Indicator {ind} needs "收盘" column')
+            st.error(f'Indicator {ind} needs "收盘" and "最高" and "最低" and "成交量" columns')
     elif ind=='OBV':
-        if('收盘' in df):
-            df["SMA10"]=tal.SMA(df["收盘"],timeperiod=_params_sma_days)
+        if('收盘' in df and '成交量' in df):
+            df["OBV"]=tal.OBV(df["收盘"],df['成交量'])
         else:
-            st.error(f'Indicator {ind} needs "收盘" column')
+            st.error(f'Indicator {ind} needs "收盘" and "成交量" column')
     elif ind=='RVI':
-        if('收盘' in df):
-            df["SMA10"]=tal.SMA(df["收盘"],timeperiod=_params_sma_days)
+        if('收盘' in df and '开盘' in df and '最高' in df and '最低' in df):
+            def get_RVI(Close,Open,High,Low, n):
+                # Calculate RVI numerator
+                RVI_Numerator = (Close - Open) / (High - Low)
+                # Calculate N period SMA for RVI
+                RVI_SMA = RVI_Numerator.rolling(window=n).mean()
+                return RVI_Numerator,RVI_SMA
+            df["RVI_Numerator"],df['RVI_SMA']=get_RVI(df['收盘'],df['开盘'],df['最高'],df['最低'],_params_rvi_days)
         else:
-            st.error(f'Indicator {ind} needs "收盘" column')
+            st.error(f'Indicator {ind} needs "收盘" and "开盘" and "最高" and "最低" column')
             
 # -----------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Show pages
 show_pages_from_config()
