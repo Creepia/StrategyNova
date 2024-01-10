@@ -149,6 +149,8 @@ if 'MACD' in list_columns:
     signal_conditions.append('MACD < 0 | MACD > 0')
 if 'DMI' in list_columns:
     signal_conditions.append('DIP crossup DIN | DIP crossdown DIN')
+if 'RSI' in list_columns:
+    signal_conditions.append('RSI < 30 | RSI > 100 - 30')
 current_condition = st.selectbox('Saved Condition',signal_conditions)
 
 
