@@ -22,18 +22,18 @@ def add_ind_params(ind):
 
     elif ind=='EMA':
         global _params_ema_days
-        _params_ema_days = int(st.text_input('days',6))
+        _params_ema_days = int(st.text_input('days',6,key='_params_ema_days'))
     elif ind=='RSI':
         global _params_rsi_days
-        _params_rsi_days = int(st.text_input('days',14))
+        _params_rsi_days = int(st.text_input('days',14,key='_params_rsi_days'))
     elif ind=='MACD':
         global _params_macd_fastperiod,_params_macd_slowperiod,_params_macd_signalperiod
-        _params_macd_fastperiod = int(st.text_input('fastperiod',10))
-        _params_macd_slowperiod = int(st.text_input('slowperiod',20))
-        _params_macd_signalperiod = int(st.text_input('signalperiod',9))
+        _params_macd_fastperiod = int(st.text_input('fastperiod',10,key='_params_macd_fastperiod'))
+        _params_macd_slowperiod = int(st.text_input('slowperiod',20,key='_params_macd_slowperiod'))
+        _params_macd_signalperiod = int(st.text_input('signalperiod',9,key='_params_macd_signalperiod'))
     elif ind=='SMA':
         global _params_sma_days
-        _params_sma_days = int(st.text_input('days',10))
+        _params_sma_days = int(st.text_input('days',10,key='_params_sma_days'))
 
     elif ind=='SAR':
         global _params_sar_accelaration,_params_sar_maximum
@@ -41,37 +41,37 @@ def add_ind_params(ind):
         _params_sar_maximum = float(st.text_input('maximum',0.2))
     elif ind=='WPR':
         global _params_wpr_days
-        _params_wpr_days = int(st.text_input('days',14))
+        _params_wpr_days = int(st.text_input('days',14,key='_params_wpr_days'))
     elif ind=='CCI':
         global _params_cci_days
-        _params_cci_days = int(st.text_input('days',20))
+        _params_cci_days = int(st.text_input('days',20,key='_params_cci_days'))
     elif ind=='ADX':
         pass
     # i.e. Stock
     elif ind=='KD':
         global _params_kd_fastkperiod,_params_kd_slowkperiod,_params_kd_slowkmatype,_params_kd_slowdperiod,_params_kd_slowdmatype
-        _params_kd_fastkperiod = int(st.text_input('fast_k_period',5))
-        _params_kd_slowkperiod = int(st.text_input('slow_k_period',3))
-        _params_kd_slowkmatype = int(st.text_input('slow_k_matype',0))
-        _params_kd_slowdperiod = int(st.text_input('slow_d_period',3))
-        _params_kd_slowdmatype = int(st.text_input('slow_d_matype',0))
+        _params_kd_fastkperiod = int(st.text_input('fast_k_period',5,key='_params_kd_fastkperiod'))
+        _params_kd_slowkperiod = int(st.text_input('slow_k_period',3,key='_params_kd_slowkperiod'))
+        _params_kd_slowkmatype = int(st.text_input('slow_k_matype',0,key='_params_kd_slowkmatype'))
+        _params_kd_slowdperiod = int(st.text_input('slow_d_period',3,key='_params_kd_slowdperiod'))
+        _params_kd_slowdmatype = int(st.text_input('slow_d_matype',0,key='_params_kd_slowdmatype'))
     elif ind=='M_DI':
         global _params_mdi_days
-        _params_mdi_days = int(st.text_input('days',14))
+        _params_mdi_days = int(st.text_input('days',14,key='_params_mdi_days'))
     elif ind=='P_DI':
         global _params_pdi_days
-        _params_pdi_days = int(st.text_input('days',14))
+        _params_pdi_days = int(st.text_input('days',14,key='_params_pdi_days'))
     elif ind=='ADXR':
         global _params_adxr_days
-        _params_adxr_days = int(st.text_input('days',14))
+        _params_adxr_days = int(st.text_input('days',14,key='_params_adxr_days'))
     elif ind=='MFI':
         global _params_mfi_days
-        _params_mfi_days = int(st.text_input('days',14))
+        _params_mfi_days = int(st.text_input('days',14,key='_params_mfi_days'))
     elif ind=='OBV':
         pass
     elif ind=='RVI':
         global _params_rvi_days
-        _params_rvi_days = int(st.text_input('days',10))
+        _params_rvi_days = int(st.text_input('days',10,key='_params_rvi_days'))
     
 
 def add_ind_to_df(ind,df):
