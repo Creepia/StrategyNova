@@ -235,7 +235,7 @@ if st.button('Apply Indicators',type='primary',disabled=not btn_preview_for_one_
     for file in os.listdir(f'source/{source_stock_set}'):
         i += 1
         prg = i / len(os.listdir(f'source/{source_stock_set}'))
-        print(prg)
+        # print(prg)
         prg_applying_indicators.progress(prg,'Applying Indicators...')
         source_path = f'source/{source_stock_set}/{file}'
         target_path = f'applied_indicators/{source_stock_set}/{file}'
