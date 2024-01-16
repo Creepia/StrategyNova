@@ -37,8 +37,8 @@ def add_ind_params(ind):
 
     elif ind=='SAR':
         global _params_sar_accelaration,_params_sar_maximum
-        _params_sar_accelaration = int(st.text_input('accelaration',0.02))
-        _params_sar_maximum = int(st.text_input('maximum',0.2))
+        _params_sar_accelaration = float(st.text_input('accelaration',0.02))
+        _params_sar_maximum = float(st.text_input('maximum',0.2))
     elif ind=='WPR':
         global _params_wpr_days
         _params_wpr_days = int(st.text_input('days',14))
@@ -72,6 +72,7 @@ def add_ind_params(ind):
     elif ind=='RVI':
         global _params_rvi_days
         _params_rvi_days = int(st.text_input('days',10))
+    
 
 def add_ind_to_df(ind,df):
     if(df.shape[0]==0):
