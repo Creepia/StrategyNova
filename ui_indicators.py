@@ -105,7 +105,7 @@ def add_ind_to_df(ind,df):
             st.error(f'Indicator {ind} needs "收盘" column')
     elif ind=='SMA':
         if('收盘' in df):
-            df["SMA10"]=tal.SMA(df["收盘"],timeperiod=_params_sma_days)
+            df["SMA"]=tal.SMA(df["收盘"],timeperiod=_params_sma_days)
         else:
             st.error(f'Indicator {ind} needs "收盘" column')
     

@@ -16,4 +16,3 @@ if exist python310 (
 )
 .\python310\Scripts\streamlit.exe run ui_index.py
 echo Running ui_index.py ...
-pause
