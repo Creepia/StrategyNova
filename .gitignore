@@ -6,3 +6,8 @@ signals/*
 testback/*
 summary/*
 python310/*
+.idea/.gitignore
+.idea/modules.xml
+.idea/StrategyNova.iml
+.idea/vcs.xml
+.idea/inspectionProfiles/profiles_settings.xml
