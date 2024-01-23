@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from st_pages import show_pages_from_config
+import matplotlib.pyplot as plt
 import os
 
 def testback_data(buy_signals,initial_cash = 1000000):
@@ -62,6 +63,37 @@ def testback_data(buy_signals,initial_cash = 1000000):
         backtest = backtest.copy() if backtest_row.empty else backtest_row.copy() if backtest.empty else pd.concat([backtest, backtest_row])
     return backtest
 
+
+
+from io import BytesIO
+def testback_diagram(buy_signals, backtest):
+    # 创建一个新的图表
+    plt.figure(figsize=(10, 6))
+
+    # 绘制股票走势
+    plt.plot(buy_signals['日期'], buy_signals['收盘'], label='股票走势', color='blue')
+
+    # 标记买入点和卖出点
+    buy_points = backtest[backtest['Position'] == 'buy']
+    sell_points = backtest[backtest['Position'] == 'sell']
+
+    plt.scatter(buy_points['index'], buy_points['Close'], marker='^', color='green', label='买入点')
+    plt.scatter(sell_points['index'], sell_points['Close'], marker='v', color='red', label='卖出点')
+
+    # 添加标签和标题
+    plt.xlabel('日期')
+    plt.ylabel('股价')
+    plt.title('股票走势和交易信号')
+    plt.legend()
+
+    # 将图表保存到 BytesIO 对象中
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+    return buffer
+
+
+
 # Show pages
 show_pages_from_config()
 
@@ -76,6 +108,7 @@ btn_preview_for_one_stock = st.button('Preview for one stock')
 if btn_preview_for_one_stock:
     tb=testback_data(pd.read_csv(any_signals_file),initial_cash=1000000)
     st.dataframe(tb,use_container_width=True)
+    st.image(testback_diagram(pd.read_csv(any_signals_file), tb), caption='回测图表', use_column_width=True)
 
 # Similar part as the ui_indicators.py
 if st.button('Calculate for the set',type='primary',disabled=not btn_preview_for_one_stock):
