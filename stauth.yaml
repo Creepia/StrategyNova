@@ -1,0 +1,25 @@
+credentials:
+  usernames:
+    userA:
+      email: userA@gmail.com
+      name: userA
+      password: $2b$12$WBzLdEWI1w/wRCskLmU1WuLU2FzuP4VMIMgpf/8Sm8xxtYhgJVIWe 
+    userB:
+      email: userB@gmail.com
+      name: userB
+      password: $2b$12$/km2ybsNE.o734M3lZ/IR.pNMsOUw/b6uBMH.lEXEu9TcQbylvbDG
+    userC:
+      email: userC@gmail.com
+      name: userC
+      password: $2b$12$zYWWSA695KikGl8qAnpYc.41ZQ8AYBxmfbmY5cJipxhcjAQImjV.K
+    userD:
+      email: userD@gmail.com
+      name: userD
+      password: $2b$12$INwi7MQD.AkIRmFMnXyAG.3rrfgktVPFZ3J7m8OtB5Cz0oseFLZlm
+cookie:
+  expiry_days: 7
+  key: some_signature_key # Must be string
+  name: some_cookie_name
+preauthorized:
+  emails:
+  - rainbowcreepia@gmail.com

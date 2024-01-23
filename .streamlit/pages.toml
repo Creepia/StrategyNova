@@ -1,6 +1,6 @@
 [[pages]]
 path = "ui_index.py"
-name = "Index"
+name = "Home"
 icon = "🏠"
 
 [[pages]]

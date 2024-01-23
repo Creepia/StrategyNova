@@ -98,11 +98,11 @@ def testback_diagram(buy_signals, backtest):
 show_pages_from_config()
 
 '#### Testback'
-stock_set_name = st.selectbox('Stock Set', tuple(os.listdir('signals')))
+stock_set_name = st.selectbox('Stock Set', tuple(os.listdir('users/{st.session_state["username"]}/signals')))
 
-signal_set_name = st.selectbox('Signal Set', tuple(os.listdir(f'signals/{stock_set_name}')))
+signal_set_name = st.selectbox('Signal Set', tuple(os.listdir(f'users/{st.session_state["username"]}/signals/{stock_set_name}')))
 
-any_signals_file = f'signals/{stock_set_name}/{signal_set_name}/' + os.listdir(f'signals/{stock_set_name}/{signal_set_name}')[0]
+any_signals_file = f'users/{st.session_state["username"]}/signals/{stock_set_name}/{signal_set_name}/' + os.listdir(f'users/{st.session_state["username"]}/signals/{stock_set_name}/{signal_set_name}')[0]
 
 btn_preview_for_one_stock = st.button('Preview for one stock')
 if btn_preview_for_one_stock:
@@ -113,16 +113,16 @@ if btn_preview_for_one_stock:
 # Similar part as the ui_indicators.py
 if st.button('Calculate for the set',type='primary',disabled=not btn_preview_for_one_stock):
     prg_testback = st.progress(0.0, text='Checking folder existency...')
-    if not os.path.exists(f'testback/{stock_set_name}/{signal_set_name}'):
-        os.makedirs(f'testback/{stock_set_name}/{signal_set_name}')
+    if not os.path.exists(f'users/{st.session_state["username"]}/testback/{stock_set_name}/{signal_set_name}'):
+        os.makedirs(f'users/{st.session_state["username"]}/testback/{stock_set_name}/{signal_set_name}')
     #  To every file, do testback
     i=0.0
-    for file in os.listdir(f'signals/{stock_set_name}/{signal_set_name}'):
+    for file in os.listdir(f'users/{st.session_state["username"]}/signals/{stock_set_name}/{signal_set_name}'):
         i += 1
-        prg = i / len(os.listdir(f'signals/{stock_set_name}/{signal_set_name}'))
+        prg = i / len(os.listdir(f'users/{st.session_state["username"]}/signals/{stock_set_name}/{signal_set_name}'))
         prg_testback.progress(prg,'Doing testback...')
-        source_path = f'signals/{stock_set_name}/{signal_set_name}/{file}'
-        target_path = f'testback/{stock_set_name}/{signal_set_name}/{file}'
+        source_path = f'users/{st.session_state["username"]}/signals/{stock_set_name}/{signal_set_name}/{file}'
+        target_path = f'users/{st.session_state["username"]}/testback/{stock_set_name}/{signal_set_name}/{file}'
         tb=testback_data(pd.read_csv(source_path),initial_cash=1000000)
         tb.to_csv(target_path,index=False)
     prg_testback.progress(1.0,'Finished')

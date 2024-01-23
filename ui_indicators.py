@@ -202,14 +202,14 @@ show_pages_from_config()
 
 '#### Indicators'
 
-source_stock_set = st.selectbox('Source Stock Set', tuple(os.listdir('source')))
+source_stock_set = st.selectbox('Source Stock Set', tuple(os.listdir(f'users/{st.session_state["username"]}/source')))
 
 
 selected_indicators = st.multiselect('selected indicators',indicators,[])
 if 'STD' not in selected_indicators:
     st.warning('You must need to choose "STD" when you want to testback!')
 
-preview_df = pd.read_csv(f'source/{source_stock_set}/' + os.listdir(f'source/{source_stock_set}')[0]) if os.listdir(f'source/{source_stock_set}') else None
+preview_df = pd.read_csv(f'users/{st.session_state["username"]}/source/{source_stock_set}/' + os.listdir(f'users/{st.session_state["username"]}/source/{source_stock_set}')[0]) if os.listdir(f'users/{st.session_state["username"]}/source/{source_stock_set}') else None
 
 with st.sidebar:
     for ind in selected_indicators:

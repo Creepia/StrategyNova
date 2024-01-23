@@ -4,3 +4,4 @@ pandas==2.1.4
 st_pages==0.4.5
 streamlit==1.30.0
 TA_Lib==0.4.24
+streamlit-authenticator==0.2.3

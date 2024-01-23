@@ -136,7 +136,7 @@ applied_indicators_set = st.selectbox('Applied Indicator Set', tuple(os.listdir(
 
 signal_set_name = st.text_input('Signal Set Name','good_signals')
 
-any_file_with_indicators = f'applied_indicators/{applied_indicators_set}/' + os.listdir(f'applied_indicators/{applied_indicators_set}')[0]
+any_file_with_indicators = f'users/{st.session_state["username"]}/applied_indicators/{applied_indicators_set}/' + os.listdir(f'users/{st.session_state["username"]}/applied_indicators/{applied_indicators_set}')[0]
 list_columns = pd.read_csv(any_file_with_indicators).columns.tolist()
 
 # Here are the default strategies
@@ -165,16 +165,16 @@ if btn_preview_for_one_stock:
 # Similar part as the ui_indicators.py
 if st.button('Calculate for the set',type='primary',disabled=not btn_preview_for_one_stock):
     prg_calculating_signals = st.progress(0.0, text='Checking folder existency...')
-    if not os.path.exists(f'signals/{applied_indicators_set}/{signal_set_name}'):
-        os.makedirs(f'signals/{applied_indicators_set}/{signal_set_name}')
+    if not os.path.exists(f'users/{st.session_state["username"]}/signals/{applied_indicators_set}/{signal_set_name}'):
+        os.makedirs(f'users/{st.session_state["username"]}/signals/{applied_indicators_set}/{signal_set_name}')
     #  To every file, calculate the signals
     i=0.0
-    for file in os.listdir(f'applied_indicators/{applied_indicators_set}'):
+    for file in os.listdir(f'users/{st.session_state["username"]}/applied_indicators/{applied_indicators_set}'):
         i += 1
-        prg = i / len(os.listdir(f'applied_indicators/{applied_indicators_set}'))
+        prg = i / len(os.listdir(f'users/{st.session_state["username"]}/applied_indicators/{applied_indicators_set}'))
         prg_calculating_signals.progress(prg,'Calculating...')
-        source_path = f'applied_indicators/{applied_indicators_set}/{file}'
-        target_path = f'signals/{applied_indicators_set}/{signal_set_name}/{file}'
+        source_path = f'users/{st.session_state["username"]}/applied_indicators/{applied_indicators_set}/{file}'
+        target_path = f'users/{st.session_state["username"]}/signals/{applied_indicators_set}/{signal_set_name}/{file}'
         exp=Expression(strategy_expression,pd.read_csv(source_path))
         exp.eval().to_csv(target_path,index=False)
     prg_calculating_signals.progress(1.0,'Finished. Now you may go to testback page.')
