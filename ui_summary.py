@@ -18,7 +18,7 @@ def result(backtest_results,id=None,initial_cash=1000000):
     col_list = [float(x) for x in col_list]
     clean_list = [col_list[0]] + [col_list[i] for i in range(1, len(col_list)) if col_list[i] != col_list[i-1]]
     diff_list = [clean_list[i+1] - clean_list[i] for i in range(len(clean_list)-1)]
-    win_rate = sum([x > 0 for x in diff_list]) / len(diff_list)
+    win_rate = sum([x > 0 for x in diff_list]) / len(diff_list) if len(diff_list)!=0 else None
 
     equity_series = backtest_results['Equity']
     last_equity = equity_series.iloc[-1]
@@ -46,7 +46,7 @@ def result(backtest_results,id=None,initial_cash=1000000):
 show_pages_from_config()
 
 '#### Summary'
-stock_set_name = st.selectbox('Stock Set', tuple(os.listdir('testback')))
+stock_set_name = st.selectbox('Stock Set', tuple(os.listdir(f'users/{st.session_state["username"]}/testback')))
 
 signal_set_name = st.selectbox('Signal Set', tuple(os.listdir(f'users/{st.session_state["username"]}/testback/{stock_set_name}')))
 

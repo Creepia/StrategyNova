@@ -39,7 +39,7 @@ def showIndexPage():
 
     tab_view_source,tab_clear_folder= st.tabs(['View Source', 'Clear Folder'])
     with tab_view_source:
-        current_view = st.selectbox('Stock Set', tuple(os.listdir('source')),placeholder='default_set',key='index_current_stock_set')
+        current_view = st.selectbox('Stock Set', tuple(os.listdir(f'users/{st.session_state["username"]}/source')),placeholder='default_set',key='index_current_stock_set')
         list_source = os.listdir(f'users/{st.session_state["username"]}/source/{current_view}')
         view_data = pd.DataFrame({
             'stock_file':list_source,
@@ -48,15 +48,15 @@ def showIndexPage():
         st.dataframe(view_data,use_container_width=True)
 
     with tab_clear_folder:
-        exist_folders=set(['applied_indicators','signals','testback','source','summary']).intersection(set(os.listdir('./')))
-        st.write(set(['applied_indicators','signals','testback','source','summary']))
-        st.write(set(os.listdir('./')))
+        exist_folders=set(['applied_indicators','signals','testback','source','summary']).intersection(set(os.listdir(f'users/{st.session_state["username"]}/')))
+        # st.write(set(['applied_indicators','signals','testback','source','summary']))
+        # st.write(set(os.listdir('./')))
         option = st.selectbox('Choose the folder you want to clear...',exist_folders,key='folder_to_clear')
         clear_selected_folders_1 = st.button('CLEAR SELECTED FOLDERS?',type='secondary',key='clear_selected_folders_1')
         if st.button('CLEAR SELECTED FOLDERS!',type='primary',key='clear_selected_folders_2',disabled=not clear_selected_folders_1):
             # Avoid misdeletings
             if(len(option)>3):
-                rmtree(option)
+                rmtree(f'users/{st.session_state["username"]}/{option}')
                 st.success(f"Successfully clear '{option}' folder")
     '---'
     # 重設密碼部分

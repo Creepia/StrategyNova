@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from st_pages import show_pages_from_config
 import matplotlib.pyplot as plt
+plt.rcParams['font.sans-serif'] = ['Simhei']
+plt.rcParams['axes.unicode_minus'] = False
 import os
 
 def testback_data(buy_signals,initial_cash = 1000000):
@@ -98,7 +100,7 @@ def testback_diagram(buy_signals, backtest):
 show_pages_from_config()
 
 '#### Testback'
-stock_set_name = st.selectbox('Stock Set', tuple(os.listdir('users/{st.session_state["username"]}/signals')))
+stock_set_name = st.selectbox('Stock Set', tuple(os.listdir(f'users/{st.session_state["username"]}/signals')))
 
 signal_set_name = st.selectbox('Signal Set', tuple(os.listdir(f'users/{st.session_state["username"]}/signals/{stock_set_name}')))
 

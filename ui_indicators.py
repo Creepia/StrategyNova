@@ -228,17 +228,17 @@ st.dataframe(preview_df)
 
 if st.button('Apply Indicators',type='primary',disabled=not btn_preview_for_one_stock):
     prg_applying_indicators = st.progress(0.0, text='Checking folder existency...')
-    if not os.path.exists(f'applied_indicators/{source_stock_set}'):
-        os.makedirs(f'applied_indicators/{source_stock_set}')
+    if not os.path.exists(f'users/{st.session_state["username"]}/applied_indicators/{source_stock_set}'):
+        os.makedirs(f'users/{st.session_state["username"]}/applied_indicators/{source_stock_set}')
     #  To every file, applied all the indicators
     i=0.0
-    for file in os.listdir(f'source/{source_stock_set}'):
+    for file in os.listdir(f'users/{st.session_state["username"]}/source/{source_stock_set}'):
         i += 1
-        prg = i / len(os.listdir(f'source/{source_stock_set}'))
+        prg = i / len(os.listdir(f'users/{st.session_state["username"]}/source/{source_stock_set}'))
         # print(prg)
         prg_applying_indicators.progress(prg,'Applying Indicators...')
-        source_path = f'source/{source_stock_set}/{file}'
-        target_path = f'applied_indicators/{source_stock_set}/{file}'
+        source_path = f'users/{st.session_state["username"]}/source/{source_stock_set}/{file}'
+        target_path = f'users/{st.session_state["username"]}/applied_indicators/{source_stock_set}/{file}'
         data=pd.read_csv(source_path)
         for ind in selected_indicators:
             add_ind_to_df(ind,data)
