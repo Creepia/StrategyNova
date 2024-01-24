@@ -132,7 +132,7 @@ class Expression:
 show_pages_from_config()
 
 '#### Signals'
-applied_indicators_set = st.selectbox('Applied Indicator Set', tuple(os.listdir('applied_indicators')))
+applied_indicators_set = st.selectbox('Applied Indicator Set', tuple(os.listdir(f'users/{st.session_state["username"]}/applied_indicators')))
 
 signal_set_name = st.text_input('Signal Set Name','good_signals')
 
