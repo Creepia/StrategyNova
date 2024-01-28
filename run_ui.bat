@@ -9,5 +9,5 @@ if exist python310 (
   echo python310 folder is not found in the current directory
 )
 rem 运行程序
-echo Running ui_index.py ...
-.\python310\Scripts\streamlit.exe run ui_index.py
+echo Running home.py ...
+.\python310\Scripts\streamlit.exe run home.py
