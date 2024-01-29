@@ -60,3 +60,23 @@ elif st.session_state["authentication_status"] is False:
     st.error('Username/password is incorrect')
 elif st.session_state["authentication_status"] is None:
     st.warning('Please enter your username and password')
+
+
+#页面设计
+#页面标题：单股分析
+st.sidebar.title("Single Stock Analysis")
+
+#第一个选项：选择市场
+selected_option = st.sidebar.selectbox("Market", ["US Market", "HongKong Market", "Chinese Market"])
+
+#第二个选项：股票
+
+#日期区间
+
+#策略
+
+#控制最大持有天数、最小持有天数、止盈点、止损点
+
+
+
+
