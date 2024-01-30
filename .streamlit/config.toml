@@ -2,3 +2,7 @@
 # Max size, in megabytes, for files uploaded with the file_uploader.
 # Default: 200
 maxUploadSize = 300
+
+[theme]
+base="dark"
+primaryColor="#ff6868"
