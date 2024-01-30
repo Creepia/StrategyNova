@@ -37,15 +37,15 @@ def showIndexPage():
     # 页面设计
     with st.sidebar:
         # 页面标题：单股分析
-        st.sidebar.title("Single Stock Analysis")
+        st.title("Single Stock Analysis")
 
         # 第一个选项：选择市场
         sources = os.listdir('public_source')
-        market = st.sidebar.selectbox("Market", sources)
+        market = st.selectbox("Market", sources)
 
         # 第二个选项：股票
         single_stocks = os.listdir(f'public_source/{market}')
-        stock = st.sidebar.selectbox("Stock", single_stocks)
+        stock = st.selectbox("Stock", single_stocks)
 
         # 日期区间
         earlist_date = datetime.date(2000, 1, 1)
@@ -54,8 +54,14 @@ def showIndexPage():
             "Select the date inteval", (earlist_date, latest_date), min_value=earlist_date, max_value=latest_date, format="YYYY-MM-DD")
 
         # 策略
+        strategies=['SMA','MACD']
+        strategy = st.selectbox("Strategy", strategies)
 
         # 控制最大持有天数、最小持有天数、止盈点、止损点
+        max_hold_day=st.text_input('max hold day',key='max_hold_day')
+        min_hold_day=st.text_input('min hold day',key='min_hold_day')
+        stop_loss=st.text_input('stop loss',key='stop_loss')
+        take_profit=st.text_input('take profit',key='take_profit')
 
         # 登出部分
         authenticator.logout('Logout', 'main', key='logout_button')
