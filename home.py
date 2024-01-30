@@ -1,11 +1,13 @@
 import streamlit as st
 import pandas as pd
 from shutil import rmtree
+import talib as tal
 import streamlit_authenticator as stauth
 import os
 import yaml
 import datetime
 from yaml.loader import SafeLoader
+from self_tools import *
 
 # 加载配置文件
 with open('stauth.yaml') as f:
@@ -21,10 +23,30 @@ authenticator = stauth.Authenticate(
 )
 
 @st.cache_data
-def getDataframe(market,stock):
+def getDataframe(market,stock,strategy,stop_loss,take_profit):
     if stock!='ALL':
         df=pd.read_csv(f'public_source/{market}/{stock}')
-    return df
+    
+    df['STD'] = df['收盘'].rolling(50).std()
+    df['MA'] = df['收盘'].rolling(50).mean()
+
+    if strategy=='MACD':
+        _, _, df["MACD"] = tal.MACD(df['收盘'], 10, 20, 9)
+        exp=Expression('MACD < 0 | MACD > 0',df)
+    elif strategy=='SMA':
+        df["SMA"]=tal.SMA(df["收盘"],10)
+        exp=Expression('SMA < 50 | SMA > 50',df)
+
+    Signals=exp.eval()
+    TestBack=testback_data(Signals,stop_loss,take_profit).iloc[:,2:]
+    TestBack=TestBack.reset_index(drop=True)
+
+    # concat(df,TestBack)
+    df = df.copy() if TestBack.empty else TestBack.copy() if df.empty else pd.concat([df, TestBack],axis=1)
+        
+    testback_result=result(TestBack).T
+
+    return df,testback_result
 
 def showIndexPage():
 
@@ -34,7 +56,7 @@ def showIndexPage():
             os.makedirs(
                 f'users/{st.session_state["username"]}/{folder}/default_set')
 
-    # 页面设计
+    # 侧边栏
     with st.sidebar:
         # 页面标题：单股分析
         st.title("Single Stock Analysis")
@@ -46,6 +68,7 @@ def showIndexPage():
         # 第二个选项：股票
         single_stocks = os.listdir(f'public_source/{market}')
         stock = st.selectbox("Stock", single_stocks)
+        
 
         # 日期区间
         earlist_date = datetime.date(2000, 1, 1)
@@ -56,22 +79,30 @@ def showIndexPage():
         # 策略
         strategies=['SMA','MACD']
         strategy = st.selectbox("Strategy", strategies)
+        
 
         # 控制最大持有天数、最小持有天数、止盈点、止损点
         max_hold_day=st.text_input('max hold day',key='max_hold_day')
         min_hold_day=st.text_input('min hold day',key='min_hold_day')
-        stop_loss=st.text_input('stop loss',key='stop_loss')
-        take_profit=st.text_input('take profit',key='take_profit')
+        stop_loss=st.text_input('stop loss',"1",key='stop_loss')
+        take_profit=st.text_input('take profit',"1.5",key='take_profit')
 
         # 登出部分
         authenticator.logout('Logout', 'main', key='logout_button')
 
+
+    # 主界面
     f'### Welcome {st.session_state["name"]}!'
 
     tab_Dataframe, tab_Chart = st.tabs(['Dataframe', 'Chart'])
+
     with tab_Dataframe:
-        df=getDataframe(market,stock)
-        df
+        col_left,col_right = st.columns([0.7, 0.3])
+        df,res=getDataframe(market,stock,strategy,float(stop_loss),float(take_profit))
+        with col_left:
+            st.dataframe(df,use_container_width=True)
+        with col_right:
+            st.dataframe(res,use_container_width=True)
 
     with tab_Chart:
         pass
