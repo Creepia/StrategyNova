@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import streamlit as st
 class Expression:
     def __init__(self,s:str,data:pd.DataFrame):
         '''
@@ -200,7 +202,10 @@ def result(backtest_results,id=None,initial_cash=1000000):
     col_list = [float(x) for x in col_list]
     clean_list = [col_list[0]] + [col_list[i] for i in range(1, len(col_list)) if col_list[i] != col_list[i-1]]
     diff_list = [clean_list[i+1] - clean_list[i] for i in range(len(clean_list)-1)]
-    win_rate = sum([x > 0 for x in diff_list]) / len(diff_list)
+    if len(diff_list)!=0:
+        win_rate = sum([x > 0 for x in diff_list]) / len(diff_list)
+    else:
+        win_rate = 0
 
     equity_series = backtest_results['Equity']
     last_equity = equity_series.iloc[-1]
@@ -214,11 +219,72 @@ def result(backtest_results,id=None,initial_cash=1000000):
 
     total_returns = (last_equity - initial_cash) / initial_cash
     annual_returns = (total_returns+1) ** (1/(len(backtest_results)/252))-1
+
+    # 换成百分号形式
+    total_returns_percent = round(total_returns * 100, 2)
+    annual_returns_percent = round(annual_returns * 100, 2)
+
     return pd.DataFrame({
         'ID':id,
         'alldays':len(backtest_results),
         'times':len(diff_list),
         'win_rate':win_rate,
-        'total_returns':total_returns,
-        'annual_returns':annual_returns
+        'total_returns': f"{total_returns_percent:.2f}%",
+        'annual_returns': f"{annual_returns_percent:.2f}%"
     },index=[0])
+
+def plot_buy_sell_points(df):
+    # 绘制折线图
+    plt.figure(figsize=(30, 6))
+    plt.plot(df['日期'], df['收盘'], label='Price')
+
+    # 标注买卖点
+    buy_points = df[df['Position'] == 'buy']
+    sell_points = df[df['Position'] == 'sell']
+
+    plt.scatter(buy_points['日期'], buy_points['收盘'], color='green', label='Buy', marker='^', s=50)
+    plt.scatter(sell_points['日期'], sell_points['收盘'], color='red', label='Sell', marker='v', s=50)
+
+    # 添加标题、标签等
+    plt.title('Buy and Sell Points')
+    plt.xlabel('Date')
+    plt.ylabel('Close Price')
+    plt.legend()
+    plt.grid(True)
+
+    # 在Streamlit页面上显示图表
+    st.pyplot(plt,use_container_width=True)
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import streamlit as st
+
+def plot_value_over_time(df):
+    # 创建 Matplotlib 图表
+    fig, ax1 = plt.subplots(figsize=(30, 6))
+
+    # 绘制收盘价曲线
+    ax1.plot(df['日期'], df['收盘'], label='Price')
+
+    # 创建第二个 y 轴用于绘制价值变化曲线
+    ax2 = ax1.twinx()
+    ax2.plot(df['日期'], df['Value'], label='Value', color='orange')
+
+    # 设置标题、标签等
+    ax1.set_title('Price and Value Over Time')
+    ax1.set_xlabel('Date')
+    ax1.set_ylabel('Closing Price', color='blue')
+    ax2.set_ylabel('Portfolio Value', color='orange')
+
+    # 显示图例
+    ax1.legend(loc='upper left')
+    ax2.legend(loc='upper right')
+
+    # 显示网格
+    ax1.grid(True)
+
+    # 在 Streamlit 页面上显示图表
+    st.pyplot(fig, use_container_width=True)
+
+

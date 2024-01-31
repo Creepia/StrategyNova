@@ -105,7 +105,16 @@ def showIndexPage():
             st.dataframe(res,use_container_width=True)
 
     with tab_Chart:
-        pass
+
+        # 示例数据
+        df['日期'] = pd.to_datetime(df['日期'])
+        # 在Streamlit页面上显示图表
+        st.title('Buy and Sell Points Visualization')
+        plot_buy_sell_points(df)
+
+        # 在 Streamlit 页面上显示图表
+        st.title('Price and Value Over Time')
+        plot_value_over_time(df)
 
     '---'
 
