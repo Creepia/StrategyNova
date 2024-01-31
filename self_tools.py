@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import streamlit as st
 
 class Expression:
     def __init__(self,s:str,data:pd.DataFrame):
@@ -253,11 +255,6 @@ def plot_buy_sell_points(df):
 
     # 在Streamlit页面上显示图表
     st.pyplot(plt,use_container_width=True)
-
-
-import pandas as pd
-import matplotlib.pyplot as plt
-import streamlit as st
 
 def plot_value_over_time(df):
     # 创建 Matplotlib 图表
