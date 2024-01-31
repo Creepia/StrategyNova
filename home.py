@@ -23,10 +23,20 @@ authenticator = stauth.Authenticate(
 )
 
 @st.cache_data
-def getDataframe(market,stock,strategy,stop_loss,take_profit):
+def getDataframe(market,stock,strategy,stop_loss,take_profit,date_interval):
+    start_date, end_date = date_interval
+    start_date = pd.to_datetime(start_date)
+    end_date = pd.to_datetime(end_date)
     if stock!='ALL':
         df=pd.read_csv(f'public_source/{market}/{stock}')
-    
+
+    df['日期set'] = pd.to_datetime(df['日期'])
+    start_index = (df['日期set'] >= start_date).idxmax()
+    end_index = (df['日期set'] <= end_date).idxmin()
+    df = df.iloc[start_index:end_index]
+    df.drop('日期set', axis=1)
+    df = df.reset_index(drop=True)
+
     df['STD'] = df['收盘'].rolling(50).std()
     df['MA'] = df['收盘'].rolling(50).mean()
 
@@ -43,8 +53,8 @@ def getDataframe(market,stock,strategy,stop_loss,take_profit):
 
     # concat(df,TestBack)
     df = df.copy() if TestBack.empty else TestBack.copy() if df.empty else pd.concat([df, TestBack],axis=1)
-        
-    testback_result=result(TestBack).T
+
+    testback_result = result(TestBack).T
 
     return df,testback_result
 
@@ -73,7 +83,7 @@ def showIndexPage():
         # 日期区间
         earlist_date = datetime.date(2000, 1, 1)
         latest_date = datetime.date(2024, 1, 30)
-        date_inteval = st.date_input(
+        date_interval = st.date_input(
             "Select the date inteval", (earlist_date, latest_date), min_value=earlist_date, max_value=latest_date, format="YYYY-MM-DD")
 
         # 策略
@@ -82,10 +92,11 @@ def showIndexPage():
         
 
         # 控制最大持有天数、最小持有天数、止盈点、止损点
-        max_hold_day=st.text_input('max hold day',key='max_hold_day')
-        min_hold_day=st.text_input('min hold day',key='min_hold_day')
-        stop_loss=st.text_input('stop loss',"1",key='stop_loss')
-        take_profit=st.text_input('take profit',"1.5",key='take_profit')
+        #目前最大持有天数和最小持有天数还没定
+        max_hold_day=st.text_input('max hold day', key='max_hold_day')
+        min_hold_day=st.text_input('min hold day', key='min_hold_day')
+        stop_loss=st.text_input('stop loss(Standard Deviation)', "1", key='stop_loss')
+        take_profit=st.text_input('take profit(Standard Deviation)', "2", key='take_profit')
 
         # 登出部分
         authenticator.logout('Logout', 'main', key='logout_button')
@@ -98,7 +109,7 @@ def showIndexPage():
 
     with tab_Dataframe:
         col_left,col_right = st.columns([0.7, 0.3])
-        df,res=getDataframe(market,stock,strategy,float(stop_loss),float(take_profit))
+        df,res=getDataframe(market,stock,strategy,float(stop_loss),float(take_profit), date_interval)
         with col_left:
             st.dataframe(df,use_container_width=True)
         with col_right:

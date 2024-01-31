@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import streamlit as st
+
 class Expression:
     def __init__(self,s:str,data:pd.DataFrame):
         '''
@@ -126,7 +125,7 @@ class Expression:
             print('Something Wrong of calculating signals')
         return self.values_stack[-1]
 
-def testback_data(buy_signals,stop_loss=1,take_profit=1.5,initial_cash = 1000000):
+def testback_data(buy_signals,stop_loss=1,take_profit=2,initial_cash = 1000000):
    
     # 创建回测结果的数据框
     backtest = pd.DataFrame(columns=['index', 'Close', 'Signal', 'Position', 'Equity', 'Value'])
@@ -235,7 +234,7 @@ def result(backtest_results,id=None,initial_cash=1000000):
 
 def plot_buy_sell_points(df):
     # 绘制折线图
-    plt.figure(figsize=(30, 6))
+    plt.figure(figsize=(35, 15))
     plt.plot(df['日期'], df['收盘'], label='Price')
 
     # 标注买卖点
@@ -262,7 +261,7 @@ import streamlit as st
 
 def plot_value_over_time(df):
     # 创建 Matplotlib 图表
-    fig, ax1 = plt.subplots(figsize=(30, 6))
+    fig, ax1 = plt.subplots(figsize=(35, 15))
 
     # 绘制收盘价曲线
     ax1.plot(df['日期'], df['收盘'], label='Price')
