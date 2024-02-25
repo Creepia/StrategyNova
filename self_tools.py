@@ -248,10 +248,10 @@ def result(backtest_results,id=None,initial_cash=1000000):
         'ID':id,
         'alldays':len(backtest_results),
         'times':len(diff_list),
-        'win_rate':str(round(win_rate*100,3))+"%",
-        'total_returns': str(round(total_returns*100,3))+"%",
-        'annual_returns': str(round(annual_returns*100,3))+"%"
-    },dtype='str',index=['result'])
+        'win_rate':win_rate,
+        'total_returns': total_returns,
+        'annual_returns': annual_returns
+    },dtype='float',index=['result'])
 
 def plot_buy_sell_points(df):
     # 绘制折线图
