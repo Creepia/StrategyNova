@@ -40,8 +40,10 @@ def getDataframe(market, stock, strategy, stop_loss, take_profit, date_interval)
     df['MA'] = df['收盘'].rolling(50).mean()
 
     if strategy == 'MACD':
-        _, _, df["MACD"] = tal.MACD(df['收盘'], 10, 20, 9)
-        exp = Expression('MACD < 0 | MACD > 0', df)
+        _, df["MACD_SIG"], df["MACD_HIST"] = tal.MACD(df['收盘'], 12, 26, 9)
+        # 买入条件：MACD线向上穿过MACD信号线
+        # 卖出条件：MACD线向下穿过MACD信号线
+        exp = Expression('MACD_HIST crossup MACD_SIG | MACD_HIST crossdown MACD_SIG', df)
     elif strategy == 'SMA':
         df["SMA10"] = tal.SMA(df["收盘"], 10)
         df["SMA20"] = tal.SMA(df["收盘"], 20)
