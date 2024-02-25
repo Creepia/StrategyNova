@@ -4,16 +4,19 @@ import matplotlib.pyplot as plt
 import streamlit as st
 
 class Expression:
+    """
+    - 用来创建一个策略表达式.
+    """
     def __init__(self,s:str,data:pd.DataFrame):
         '''
         ## Parameters
         - s: A sequence of dataframes and operators, splited in one space.
         - data: the dataframe.
-        - Precedences of tokens: | or and OR AND > crossup + * **
         ## Examples
         #### exp=Expression('MACD < 0 | MACD > 0',df) \n
         - Meaning the buy condition is MACD < 0, sell condition is MACD > 0.
         - The dataframe df should have 'MACD' column.
+        - Precedences of tokens: | or and OR AND > crossup + * **.
         - Use Signals=exp.eval() for getting the result.
         '''
         self.data=data

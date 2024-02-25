@@ -25,7 +25,20 @@ authenticator = stauth.Authenticate(
 
 
 @st.cache_data
-def getDataframe(market, stock, strategy, stop_loss, take_profit, date_interval):
+def getDataframe(market: str, stock: str, strategy: str, stop_loss: int, take_profit: int, date_interval: tuple[str, str]) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    - 获取当前需要的Dataframe（带有缓存修饰器）.
+    - 返回(df,testback_result).
+    - 返回的df带有 标准差 平均值 以及选择的策略需要的指标列.
+    - 返回的testback_result带有 ID alldays times win_rate total_returns annual_returns 列.
+    ## Parameters
+    - market: 市场
+    - stock: 股票
+    - strategy: 策略
+    - stop_loss: 止损倍率
+    - take_profit: 止盈倍率
+    - date_interval: 时间段
+    """
     start_date, end_date = date_interval
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
@@ -43,7 +56,8 @@ def getDataframe(market, stock, strategy, stop_loss, take_profit, date_interval)
         _, df["MACD_SIG"], df["MACD_HIST"] = tal.MACD(df['收盘'], 12, 26, 9)
         # 买入条件：MACD线向上穿过MACD信号线
         # 卖出条件：MACD线向下穿过MACD信号线
-        exp = Expression('MACD_HIST crossup MACD_SIG | MACD_HIST crossdown MACD_SIG', df)
+        exp = Expression(
+            'MACD_HIST crossup MACD_SIG | MACD_HIST crossdown MACD_SIG', df)
     elif strategy == 'SMA':
         df["SMA10"] = tal.SMA(df["收盘"], 10)
         df["SMA20"] = tal.SMA(df["收盘"], 20)
@@ -178,11 +192,18 @@ if st.session_state["authentication_status"] is True:
         $(document).ready(function(){
          console.log("Testing2");
             $("button[kind='icon']", window.parent.document).remove();
-            $("[data-testid='block-container']").css("padding","1rem 1rem 1rem 1rem");
+            $(".appview-container .main .block-container").css("padding-top","1rem");
          console.log("Testing3");
         })
     </script>
     """, width=0, height=0)
+    st.markdown("""
+                <style>
+                    .st-emotion-cache-16txtl3{{
+                        padding-top: 1rem;
+                    }}
+                </style>
+                """,unsafe_allow_html=True)
     '---'
 
 elif st.session_state["authentication_status"] is False:
