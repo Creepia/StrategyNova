@@ -6,7 +6,15 @@ import streamlit as st
 class Expression:
     def __init__(self,s:str,data:pd.DataFrame):
         '''
-        - self.tokens: A sequence of dataframes and operators
+        ## Parameters
+        - s: A sequence of dataframes and operators, splited in one space.
+        - data: the dataframe.
+        - Precedences of tokens: | or and OR AND > crossup + * **
+        ## Examples
+        #### exp=Expression('MACD < 0 | MACD > 0',df) \n
+        - Meaning the buy condition is MACD < 0, sell condition is MACD > 0.
+        - The dataframe df should have 'MACD' column.
+        - Use Signals=exp.eval() for getting the result.
         '''
         self.data=data
         self.tokens:list[str|pd.DataFrame]=[]
@@ -15,19 +23,22 @@ class Expression:
         self.precedences={
             '$':0,
             '|':1,
-            'and':2,
-            '>':3,
-            '<':3,
-            '>=':3,
-            '<=':3,
-            '==':3,
-            'crossup':3,
-            'crossdown':3,
-            '+':4,
-            '-':4,
-            '*':5,
-            '/':5,
-            '**':6
+            'or':2,
+            'and':3,
+            'OR':4,
+            'AND':5,
+            '>':6,
+            '<':6,
+            '>=':6,
+            '<=':6,
+            '==':6,
+            'crossup':7,
+            'crossdown':7,
+            '+':8,
+            '-':8,
+            '*':9,
+            '/':9,
+            '**':10
         }
         for token in s.split(' '):
             if token in self.precedences:
@@ -52,7 +63,7 @@ class Expression:
                     self.tokens.append(data[en_support[token]])
                 else:
                     print('Invalid Expression')
-        # st.write(self.tokens)
+        st.write(self.tokens)
 
     def doOp(self):
         op = self.symbols_stack.pop()
@@ -61,11 +72,20 @@ class Expression:
         # ('==============\n==============',op,y,x,sep='\n')
         # First deal with them as 'buy' signals, then change the signals to 'sell' when operating '|'
         if op == '|':
-            y=y.map({'buy':'sell'})
+            st.write(x)
+            st.write(y)
+            y=np.where(y=='buy','sell',None)
+            x=pd.DataFrame({'signals':x})
+            y=pd.DataFrame({'signals':y})
             signals=x.combine_first(y)
+            st.write(signals)
             self.values_stack.append(signals)
-        elif op == 'and':
+        elif op == 'and' or op == 'AND':
             signals=x.where(x==y,None)
+            self.values_stack.append(signals)
+        elif op == 'or' or op== 'OR':
+            signals=np.where(x=='buy',True,False) | np.where(y=='buy',True,False)
+            signals=np.where(signals,'buy',None)
             self.values_stack.append(signals)
         elif op == '>':
             signals = pd.Series(np.where(x > y, 'buy', None))
@@ -116,7 +136,9 @@ class Expression:
                 # print('===A dataframe===')
                 self.values_stack.append(token)
         self.repeatOps('$')
-        self.values_stack[-1] = pd.DataFrame({'日期':self.data['日期'],'收盘':self.data['收盘'],'signals':self.values_stack[-1]})
+        st.write(self.values_stack[-1])
+        self.values_stack[-1] = pd.DataFrame({'日期':self.data['日期'],'收盘':self.data['收盘'],'signals':self.values_stack[-1]['signals']})
+        
         if 'STD' in self.data:
             self.values_stack[-1]['STD']=self.data['STD']
         if 'MA' in self.data:
@@ -125,6 +147,7 @@ class Expression:
         # st.write(self.symbols_stack)
         if not (len(self.values_stack)==1 and len(self.symbols_stack)==0):
             print('Something Wrong of calculating signals')
+        
         return self.values_stack[-1]
 
 def testback_data(buy_signals,stop_loss=1,take_profit=2,initial_cash = 1000000):
@@ -253,7 +276,7 @@ def plot_buy_sell_points(df):
     plt.legend()
     plt.grid(True)
 
-    # 在Streamlit页面上显示图表
+    # 在Streamlit页面上显示图表 
     st.pyplot(plt,use_container_width=True)
 
 def plot_value_over_time(df):
