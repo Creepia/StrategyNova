@@ -28,11 +28,11 @@ def getDataframe(market,stock,strategy,stop_loss,take_profit,date_interval):
     start_date, end_date = date_interval
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
-    if stock!='ALL':
-        df=pd.read_csv(f'public_source/{market}/{stock}')
-    print(start_date,end_date)
+   
+    df=pd.read_csv(f'public_source/{market}/{stock}')
+    # print(start_date,end_date)
     df=df[(pd.to_datetime(df['日期'])>=start_date) & (pd.to_datetime(df['日期'])<=end_date)].reset_index(drop=True)
-    st.write(pd.to_datetime(df['日期']))
+    # st.write(pd.to_datetime(df['日期']))
     
     df['STD'] = df['收盘'].rolling(50).std()
     df['MA'] = df['收盘'].rolling(50).mean()
@@ -55,7 +55,7 @@ def getDataframe(market,stock,strategy,stop_loss,take_profit,date_interval):
     # concat(df,TestBack)
     df = df.copy() if TestBack.empty else TestBack.copy() if df.empty else pd.concat([df, TestBack],axis=1)
 
-    testback_result = result(TestBack).T
+    testback_result = result(TestBack)
 
     return df,testback_result
 
@@ -77,7 +77,7 @@ def showIndexPage():
         market = st.selectbox("Market", sources)
 
         # 第二个选项：股票
-        single_stocks = os.listdir(f'public_source/{market}')
+        single_stocks = os.listdir(f'public_source/{market}')+['ALL']
         stock = st.selectbox("Stock", single_stocks)
         
 
@@ -111,13 +111,19 @@ def showIndexPage():
     tab_Dataframe, tab_Chart = st.tabs(['Dataframe', 'Chart'])
 
     with tab_Dataframe:
-        col_left,col_right = st.columns([0.7, 0.3])
-        df,res=getDataframe(market,stock,strategy,float(stop_loss),float(take_profit), date_interval)
-        from_day=df['日期'].iloc[0]
-        to_day=df['日期'].iloc[-1]
-        with col_left:
-            st.dataframe(df,use_container_width=True)
-        with col_right:
+        if(stock!='ALL'):
+            col_left,col_right = st.columns([0.7, 0.3])
+            df,res=getDataframe(market,stock,strategy,float(stop_loss),float(take_profit), date_interval)
+            with col_left:
+                st.dataframe(df,use_container_width=True)
+            with col_right:
+                st.dataframe(res.T,use_container_width=True)
+        else:
+            RES=map(lambda s:getDataframe(market,s,strategy,float(stop_loss),float(take_profit), date_interval),single_stocks)
+            res=pd.DataFrame([])
+            for _,r in RES:
+                # concat(res,r)
+                res = res.copy() if r.empty else r.T.copy() if res.empty else pd.concat([res, r.T],axis=0)
             st.dataframe(res,use_container_width=True)
 
     with tab_Chart:
