@@ -30,8 +30,9 @@ def getDataframe(market,stock,strategy,stop_loss,take_profit,date_interval):
     end_date = pd.to_datetime(end_date)
     if stock!='ALL':
         df=pd.read_csv(f'public_source/{market}/{stock}')
-
-    df=df[(pd.to_datetime(df['日期'])>=start_date) & (pd.to_datetime(df['日期'])<=end_date)]
+    print(start_date,end_date)
+    df=df[(pd.to_datetime(df['日期'])>=start_date) & (pd.to_datetime(df['日期'])<=end_date)].reset_index(drop=True)
+    st.write(pd.to_datetime(df['日期']))
     
     df['STD'] = df['收盘'].rolling(50).std()
     df['MA'] = df['收盘'].rolling(50).mean()
@@ -83,7 +84,7 @@ def showIndexPage():
         # 日期区间
         from_day="2000-01-01"
         to_day="2024-01-30"
-        st.text_input('From day',value=from_day, key='from_day')
+        from_day=st.text_input('From day',value=from_day, key='from_day')
         to_day=st.text_input('To day',value=to_day, key='to_day')
         date_interval=(from_day,to_day)
         
