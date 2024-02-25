@@ -63,7 +63,7 @@ class Expression:
                     self.tokens.append(data[en_support[token]])
                 else:
                     print('Invalid Expression')
-        st.write(self.tokens)
+        # st.write(self.tokens)
 
     def doOp(self):
         op = self.symbols_stack.pop()
@@ -136,7 +136,7 @@ class Expression:
                 # print('===A dataframe===')
                 self.values_stack.append(token)
         self.repeatOps('$')
-        st.write(self.values_stack[-1])
+        # st.write(self.values_stack[-1])
         self.values_stack[-1] = pd.DataFrame({'日期':self.data['日期'],'收盘':self.data['收盘'],'signals':self.values_stack[-1]['signals']})
         
         if 'STD' in self.data:
@@ -244,18 +244,14 @@ def result(backtest_results,id=None,initial_cash=1000000):
     total_returns = (last_equity - initial_cash) / initial_cash
     annual_returns = (total_returns+1) ** (1/(len(backtest_results)/252))-1
 
-    # 换成百分号形式
-    total_returns_percent = round(total_returns * 100, 2)
-    annual_returns_percent = round(annual_returns * 100, 2)
-
     return pd.DataFrame({
         'ID':id,
         'alldays':len(backtest_results),
         'times':len(diff_list),
         'win_rate':win_rate,
-        'total_returns': f"{total_returns_percent:.2f}%",
-        'annual_returns': f"{annual_returns_percent:.2f}%"
-    },index=[0])
+        'total_returns': f"{total_returns*100:.2f}%",
+        'annual_returns': f"{annual_returns*100:.2f}%"
+    },index=['result'])
 
 def plot_buy_sell_points(df):
     # 绘制折线图
