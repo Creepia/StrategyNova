@@ -72,13 +72,13 @@ class Expression:
         # ('==============\n==============',op,y,x,sep='\n')
         # First deal with them as 'buy' signals, then change the signals to 'sell' when operating '|'
         if op == '|':
-            st.write(x)
-            st.write(y)
+            # st.write(x)
+            # st.write(y)
             y=np.where(y=='buy','sell',None)
             x=pd.DataFrame({'signals':x})
             y=pd.DataFrame({'signals':y})
             signals=x.combine_first(y)
-            st.write(signals)
+            # st.write(signals)
             self.values_stack.append(signals)
         elif op == 'and' or op == 'AND':
             signals=x.where(x==y,None)
@@ -248,10 +248,10 @@ def result(backtest_results,id=None,initial_cash=1000000):
         'ID':id,
         'alldays':len(backtest_results),
         'times':len(diff_list),
-        'win_rate':win_rate,
-        'total_returns': f"{total_returns*100:.2f}%",
-        'annual_returns': f"{annual_returns*100:.2f}%"
-    },index=['result'])
+        'win_rate':str(round(win_rate*100,3))+"%",
+        'total_returns': str(round(total_returns*100,3))+"%",
+        'annual_returns': str(round(annual_returns*100,3))+"%"
+    },dtype='str',index=['result'])
 
 def plot_buy_sell_points(df):
     # 绘制折线图
