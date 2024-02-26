@@ -11,16 +11,11 @@ from yaml.loader import SafeLoader
 from self_tools import *
 from streamlit.components.v1 import html
 
+
+
 def showPage():
-    
+
     # Show pages
     show_pages_from_config(".streamlit/pages.toml")
 
-    f'### Welcome {st.session_state["name"]}!'
-
-    """
-    - No item here yet...
-    - Something should be shown in home page...
-    """
-
-page=NewPage(showPage)
+NewPage(showPage)

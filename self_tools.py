@@ -2,6 +2,16 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
+from st_pages import show_pages_from_config
+from shutil import rmtree
+import talib as tal
+import streamlit_authenticator as stauth
+import os
+import yaml
+import datetime
+from yaml.loader import SafeLoader
+from self_tools import *
+from streamlit.components.v1 import html
 
 class Expression:
     """
@@ -152,6 +162,53 @@ class Expression:
             print('Something Wrong of calculating signals')
         
         return self.values_stack[-1]
+
+class NewPage:
+    """
+    这个类初始化时会为当前页面增加登入系统，且在用户首次登入成功后增加用户文件夹.
+    """
+    def __init__(self,showPageFunction):
+        """
+        ## Parameters
+        - showPageFunction: 这个函数包括streamlit的该页面布局
+        """
+        # 加载认证配置文件
+        with open('stauth.yaml') as f:
+            config = yaml.load(f, Loader=SafeLoader)
+
+        # 初始化认证器
+        authenticator = stauth.Authenticate(
+            config['credentials'],
+            config['cookie']['name'],
+            config['cookie']['key'],
+            config['cookie']['expiry_days'],
+            config['preauthorized']
+        )
+        # 渲染登录界面并处理登录逻辑
+        if 'authentication_status' not in st.session_state:
+            st.session_state['authentication_status'] = None
+
+        if st.session_state['authentication_status'] is not True:
+            authenticator.login('Login', 'main')
+
+        # 根据认证状态显示内容
+        if st.session_state["authentication_status"] is True:
+            # 初始化用户文件夹
+            for folder in ['source', 'applied_indicators', 'signals', 'testback', 'summary']:
+                if not os.path.exists(f'users/{st.session_state["username"]}/{folder}/default_set'):
+                    os.makedirs(f'users/{st.session_state["username"]}/{folder}/default_set')
+
+            showPageFunction()
+
+            with st.sidebar:
+                # 登出部分
+                authenticator.logout('Logout', 'main', key='logout_button')
+
+        elif st.session_state["authentication_status"] is False:
+            st.error('Username/password is incorrect')
+        elif st.session_state["authentication_status"] is None:
+            st.warning('Please enter your username and password')
+
 
 def testback_data(buy_signals,stop_loss=1,take_profit=2,initial_cash = 1000000):
    

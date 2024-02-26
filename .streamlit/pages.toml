@@ -1,39 +1,15 @@
 [[pages]]
-path = "ui_index.py"
+path = "home.py"
 name = "Home"
 icon = "🏠"
 
 [[pages]]
-path = "ui_download.py"
-name = "Download"
-icon = "⬇️"
+path = "analysis.py"
+name = "Analysis"
+icon = "📊"
 
 [[pages]]
-path = "ui_indicators.py"
-name = "Indicators"
-icon = "🧮"
-
-[[pages]]
-path = "ui_signals.py"
-name = "Signals"
-icon = "💹"
-
-[[pages]]
-path = "ui_testback.py"
-name = "Testback"
-icon = "🕵️"
-
-[[pages]]
-path = "ui_summary.py"
-name = "Summary"
-icon = "𝄜"
-
-[[pages]]
-path = "ui_monitor.py"
+path = "monitor.py"
 name = "Monitor"
 icon = "📺"
 
-[[pages]]
-path = "ui_analysis.py"
-name = "Analysis"
-icon = "📊"
