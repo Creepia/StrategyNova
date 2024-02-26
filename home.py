@@ -66,9 +66,12 @@ def getDataframe(market: str, stock: str, strategy: str, stop_loss: int, take_pr
         # 卖出条件：(SMA10向上穿过SMA20 且 SMA20>=SMA50) 或 (SMA20向上穿过SMA50 且 SMA10>=SMA20)
         exp = Expression(
             'SMA10 crossup SMA20 AND SMA20 >= SMA50 or SMA20 crossup SMA50 AND SMA10 >= SMA20 | SMA10 crossdown SMA20 AND SMA20 <= SMA50 or SMA20 crossdown SMA50 AND SMA10 <= SMA20', df)
+    elif strategy=='AROON':
+        Aroon(df)
+        exp = Expression('Aroon_Up > 70 and Aroon_Down < 30 | Aroon_Up < 30 and Aroon_Down > 70', df)
 
     Signals = exp.eval()
-    TestBack = testback_data(Signals, stop_loss, take_profit).iloc[:, 2:]
+    TestBack = testback_data(Signals,stop_loss,take_profit).iloc[:,1:]
     TestBack = TestBack.reset_index(drop=True)
 
     # concat(df,TestBack)
@@ -109,7 +112,7 @@ def showIndexPage():
         date_interval = (from_day, to_day)
 
         # 策略
-        strategies = ['SMA', 'MACD']
+        strategies = ['SMA', 'MACD','AROON']
         strategy = st.selectbox("Strategy", strategies)
 
         # 控制最大持有天数、最小持有天数、止盈点、止损点
