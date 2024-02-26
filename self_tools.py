@@ -203,7 +203,8 @@ class NewPage:
 
             with st.sidebar:
                 # 登出部分
-                authenticator.logout('Logout', 'main', key=key+'logout_button')
+                # authenticator.logout('Logout', 'main', key=key+'logout_button')
+                pass
 
         elif st.session_state["authentication_status"] is False:
             st.error('Username/password is incorrect')

@@ -102,10 +102,8 @@ def showAnalysisPage():
         stock = st.selectbox("Stock", single_stocks+['ALL'],key="analysis_stock")
 
         # 日期区间
-        from_day = "2000-01-01"
-        to_day = "2024-01-30"
-        from_day = st.text_input('From day', value=from_day, key='from_day')
-        to_day = st.text_input('To day', value=to_day, key='to_day')
+        from_day = st.text_input('From day', value="2000-01-01", key='from_day')
+        to_day = st.text_input('To day', value="2024-01-30", key='to_day')
         date_interval = (from_day, to_day)
 
         # 策略

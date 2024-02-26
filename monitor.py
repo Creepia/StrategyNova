@@ -8,6 +8,26 @@ from streamlit.components.v1 import html
 
 
 
+
+
+
+@st.cache_data
+def getDataFrame_monitor(market: str, stock: str, strategy: str, stop_loss: int, take_profit: int, date_interval: tuple[str, str]) ->  pd.DataFrame:
+    """
+    getDataFrame的简化版本...
+    """
+    return (getDataframe(market, stock, strategy, float(stop_loss), float(take_profit), date_interval)[0]).tail(1)
+
+
+
+
+
+
+
+
+
+
+
 def showMonitorPage():
 
     # Show pages
@@ -25,10 +45,8 @@ def showMonitorPage():
         stocks = st.multiselect("Stocks", single_stocks,key='monitor_stocks')
 
         # 日期区间
-        from_day = "2000-01-01"
-        to_day = "2024-01-30"
-        from_day = st.text_input('From day', value=from_day, key='monitor_from_day')
-        to_day = st.text_input('To day', value=to_day, key='monitor_to_day')
+        from_day = st.text_input('From day', value="2000-01-01", key='monitor_from_day')
+        to_day = st.text_input('To day', value="2024-01-30", key='monitor_to_day')
         date_interval = (from_day, to_day)
 
         stop_loss = st.text_input(
@@ -39,14 +57,15 @@ def showMonitorPage():
         dfs=[]
         if st.button("start",type="primary"):
             for strategy in ALL_STRATEGIES:
-                RES = map(lambda s: (getDataframe(market, s, strategy, float(stop_loss), float(take_profit), date_interval)[0].tail(1)), stocks)
+                RES = map(lambda s: getDataFrame_monitor(market, s, strategy, float(stop_loss), float(take_profit), date_interval), stocks)
                 dfs.append(pd.concat(RES,ignore_index=True))
 
     # 主页面
     tab_Dataframes, tab_Others = st.tabs(['Dataframe', 'Others'])
     with tab_Dataframes:
-        for df in dfs:
-            st.dataframe(df)
+        for i in range(len(dfs)):
+            st.write(ALL_STRATEGIES[i])
+            st.dataframe(dfs[i])
 
 
 
