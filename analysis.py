@@ -1,20 +1,15 @@
 from st_pages import show_pages_from_config
 import streamlit as st
 import pandas as pd
-from shutil import rmtree
 import talib as tal
-import streamlit_authenticator as stauth
 import os
-import yaml
-import datetime
-from yaml.loader import SafeLoader
 from self_tools import *
 from streamlit.components.v1 import html
 
 
 
-
-
+# Strategies added here will be able to be selected
+ALL_STRATEGIES = ['SMA', 'MACD','AROON'] 
 
 
 @st.cache_data
@@ -88,8 +83,7 @@ def getDataframe(market: str, stock: str, strategy: str, stop_loss: int, take_pr
 
 
 
-
-def showPage():
+def showAnalysisPage():
 
     # Show pages
     show_pages_from_config(".streamlit/pages.toml")
@@ -105,7 +99,7 @@ def showPage():
 
         # 第二个选项：股票
         single_stocks = os.listdir(f'public_source/{market}')
-        stock = st.selectbox("Stock", single_stocks+['ALL'])
+        stock = st.selectbox("Stock", single_stocks+['ALL'],key="analysis_stock")
 
         # 日期区间
         from_day = "2000-01-01"
@@ -115,8 +109,7 @@ def showPage():
         date_interval = (from_day, to_day)
 
         # 策略
-        strategies = ['SMA', 'MACD','AROON']
-        strategy = st.selectbox("Strategy", strategies)
+        strategy = st.selectbox("Strategy", ALL_STRATEGIES)
 
         # 控制最大持有天数、最小持有天数、止盈点、止损点
         # 目前最大持有天数和最小持有天数还没定
@@ -181,4 +174,4 @@ def showPage():
 
 
 
-page=NewPage(showPage)
+page=NewPage(showAnalysisPage,"analysis")

@@ -167,10 +167,11 @@ class NewPage:
     """
     这个类初始化时会为当前页面增加登入系统，且在用户首次登入成功后增加用户文件夹.
     """
-    def __init__(self,showPageFunction):
+    def __init__(self,showPageFunction,key=""):
         """
         ## Parameters
         - showPageFunction: 这个函数包括streamlit的该页面布局
+        - key: 对于不同页面，应使用不同的key，使得一些元素的key随着页面key改变
         """
         # 加载认证配置文件
         with open('stauth.yaml') as f:
@@ -202,7 +203,7 @@ class NewPage:
 
             with st.sidebar:
                 # 登出部分
-                authenticator.logout('Logout', 'main', key='logout_button')
+                authenticator.logout('Logout', 'main', key=key+'logout_button')
 
         elif st.session_state["authentication_status"] is False:
             st.error('Username/password is incorrect')
