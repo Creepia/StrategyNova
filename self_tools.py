@@ -1,5 +1,8 @@
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+import streamlit as st
+
 
 class Expression:
     def __init__(self,s:str,data:pd.DataFrame):
@@ -195,7 +198,10 @@ def result(backtest_results,id=None,initial_cash=1000000):
             'times':0,
             'win_rate':0,
             'total_returns':0,
-            'annual_returns':0
+            'annual_returns':0,
+            'total_return_premium': 0,
+            'annual_return_premium': 0,
+
         },index=[0])
     col_list = list(backtest_results['Equity'][backtest_results['Equity'] != 0])
     col_list = [float(x) for x in col_list]
@@ -218,6 +224,10 @@ def result(backtest_results,id=None,initial_cash=1000000):
 
     total_returns = (last_equity - initial_cash) / initial_cash
     annual_returns = (total_returns+1) ** (1/(len(backtest_results)/252))-1
+    stock_total_return = (backtest_results['Close'].iloc[-1] - backtest_results['Close'].iloc[0])/ backtest_results['Close'].iloc[0]-1
+    total_premium_return = total_returns- stock_total_return
+    annual_premium_return = (total_premium_return+1) ** (1/(len(backtest_results)/252))-1
+
 
     # 换成百分号形式
     total_returns_percent = round(total_returns * 100, 2)
@@ -229,7 +239,10 @@ def result(backtest_results,id=None,initial_cash=1000000):
         'times':len(diff_list),
         'win_rate':win_rate,
         'total_returns': f"{total_returns_percent:.2f}%",
-        'annual_returns': f"{annual_returns_percent:.2f}%"
+        'annual_returns': f"{annual_returns_percent:.2f}%",
+        'total_return_premium': f"{total_premium_return:.2f}%",
+        'annual_return_premium': f"{annual_premium_return:.2f}%",
+
     },index=[0])
 
 def plot_buy_sell_points(df):
@@ -254,10 +267,6 @@ def plot_buy_sell_points(df):
     # 在Streamlit页面上显示图表
     st.pyplot(plt,use_container_width=True)
 
-
-import pandas as pd
-import matplotlib.pyplot as plt
-import streamlit as st
 
 def plot_value_over_time(df):
     # 创建 Matplotlib 图表
@@ -285,5 +294,11 @@ def plot_value_over_time(df):
 
     # 在 Streamlit 页面上显示图表
     st.pyplot(fig, use_container_width=True)
+
+def Aroon(stockdata, window=25):
+    # 计算Aroon Up和Aroon Down
+    stockdata['Aroon_Up'] = (stockdata['最高'].rolling(window=window).apply(lambda x: x.argmax(), raw=True)+1) / window * 100
+    stockdata['Aroon_Down'] =(stockdata['最低'].rolling(window=window).apply(lambda x: x.argmin(), raw=True)+1) / window * 100
+
 
 

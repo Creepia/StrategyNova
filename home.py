@@ -34,7 +34,7 @@ def getDataframe(market,stock,strategy,stop_loss,take_profit,date_interval):
     start_index = (df['日期set'] >= start_date).idxmax()
     end_index = (df['日期set'] <= end_date).idxmin()
     df = df.iloc[start_index:end_index]
-    df.drop('日期set', axis=1)
+    df.drop('日期set', axis=1, inplace=True)
     df = df.reset_index(drop=True)
 
     df['STD'] = df['收盘'].rolling(50).std()
@@ -46,14 +46,16 @@ def getDataframe(market,stock,strategy,stop_loss,take_profit,date_interval):
     elif strategy=='SMA':
         df["SMA"]=tal.SMA(df["收盘"],10)
         exp=Expression('SMA < 50 | SMA > 50',df)
+    elif strategy=='AROON':
+        Aroon(df)
+        exp = Expression('Aroon_Up > 70 and Aroon_Down < 30 | Aroon_Up < 30 and Aroon_Down > 70', df)
 
-    Signals=exp.eval()
-    TestBack=testback_data(Signals,stop_loss,take_profit).iloc[:,2:]
-    TestBack=TestBack.reset_index(drop=True)
+    Signals = exp.eval()
+    TestBack = testback_data(Signals,stop_loss,take_profit).iloc[:,1:]
+    TestBack = TestBack.reset_index(drop=True)
 
     # concat(df,TestBack)
     df = df.copy() if TestBack.empty else TestBack.copy() if df.empty else pd.concat([df, TestBack],axis=1)
-
     testback_result = result(TestBack).T
 
     return df,testback_result
@@ -87,7 +89,7 @@ def showIndexPage():
             "Select the date inteval", (earlist_date, latest_date), min_value=earlist_date, max_value=latest_date, format="YYYY-MM-DD")
 
         # 策略
-        strategies=['SMA','MACD']
+        strategies=['SMA','MACD','AROON']
         strategy = st.selectbox("Strategy", strategies)
         
 
