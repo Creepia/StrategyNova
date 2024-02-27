@@ -319,7 +319,9 @@ def result(backtest_results,id=None,initial_cash=1000000):
         'times':len(diff_list),
         'win_rate':win_rate,
         'total_returns': total_returns,
-        'annual_returns': annual_returns
+        'annual_returns': annual_returns,
+        'total_return_premium': total_premium_return,
+        'annual_return_premium': annual_premium_return
     },dtype='float',index=['result'])
 
 def plot_buy_sell_points(df):
