@@ -1,5 +1,5 @@
 from st_pages import show_pages_from_config
-from analysis import getDataframe,ALL_STRATEGIES
+from analysis import ALL_STRATEGIES
 import streamlit as st
 import pandas as pd
 import talib as tal
@@ -14,9 +14,9 @@ from streamlit.components.v1 import html
 @st.cache_data
 def getDataFrame_monitor(market: str, stock: str, strategy: str, stop_loss: int, take_profit: int, date_interval: tuple[str, str]) ->  pd.DataFrame:
     """
-    getDataFrame的简化版本...
+    getDataFrame在monitor页面的实现（带有缓存修饰器）
     """
-    return (getDataframe(market, stock, strategy, float(stop_loss), float(take_profit), date_interval)[0]).tail(1)
+    return getDataframe(market, stock, strategy, float(stop_loss), float(take_profit), date_interval,doTestback=False).tail(1)
 
 
 

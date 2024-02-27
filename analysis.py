@@ -9,37 +9,8 @@ from streamlit.components.v1 import html
 
 
 # Strategies added here will be able to be selected
-ALL_STRATEGIES = ['SMA', 'MACD','AROON', 'RSI', 'BOLLING']
-
-
-@st.cache_data
-def getDataframe(market: str, stock: str, strategy: str, stop_loss: int, take_profit: int, date_interval: tuple[str, str]) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    - 获取当前需要的Dataframe（带有缓存修饰器）.
-    - 返回(df,testback_result).
-    - 返回的df带有 标准差 平均值 以及选择的策略需要的指标列.
-    - 返回的testback_result带有 ID alldays times win_rate total_returns annual_returns 列.
-    ## Parameters
-    - market: 市场
-    - stock: 股票
-    - strategy: 策略
-    - stop_loss: 止损倍率
-    - take_profit: 止盈倍率
-    - date_interval: 时间段
-    """
-    start_date, end_date = date_interval
-    start_date = pd.to_datetime(start_date)
-    end_date = pd.to_datetime(end_date)
-
-    df = pd.read_csv(f'public_source/{market}/{stock}')
-    # print(start_date,end_date)
-    df = df[(pd.to_datetime(df['日期']) >= start_date) & (
-        pd.to_datetime(df['日期']) <= end_date)].reset_index(drop=True)
-    # st.write(pd.to_datetime(df['日期']))
-
-    df['STD'] = df['收盘'].rolling(50).std()
-    df['MA'] = df['收盘'].rolling(50).mean()
-
+ALL_STRATEGIES = ['SMA', 'MACD','AROON', 'RSI', 'BOLLING','KDJ','MACD KDJ']
+def apply_stragy(strategy, df):
     if strategy == 'MACD':
         _, df["MACD_SIG"], df["MACD_HIST"] = tal.MACD(df['收盘'], 12, 26, 9)
         # 买入条件：MACD线向上穿过MACD信号线
@@ -63,27 +34,59 @@ def getDataframe(market: str, stock: str, strategy: str, stop_loss: int, take_pr
         #卖出：大于70
         exp = Expression('RSI < 30 | RSI >70',df)
     elif strategy=='BOLLING':
-
         df['upper_band'], df['middle_band'], df['lower_band'] = tal.BBANDS(df['收盘'], timeperiod=14, nbdevup=2, nbdevdn=2)
         # 如果收盘价上穿 BOLL 上轨，则买入 ; 如果收盘价下穿 BOLL 下轨，则开盘卖掉
         exp = Expression('收盘 crossup upper_band | 收盘 crossdown lower_band', df)
+    elif strategy=='KDJ':
+        df['KLine'], df['DLine'] = tal.STOCH(df["最高"], df["最低"], df["收盘"], fastk_period=9, slowk_period=5, slowk_matype=1, slowd_period=5, slowd_matype=1)
+        df['JLine'] = 3 * df['KLine'] - 2 * df['DLine']
+        # 买入条件：K线向上穿过D线
+        # 卖出条件：K线向下穿过D线
+        exp = Expression('KLine crossup DLine | KLine crossdown DLine', df)
+    return exp
 
 
 
-    Signals = exp.eval()
-    TestBack = testback_data(Signals,stop_loss,take_profit).iloc[:,1:]
-    TestBack = TestBack.reset_index(drop=True)
-
-    # concat(df,TestBack)
-    df = df.copy() if TestBack.empty else TestBack.copy(
-    ) if df.empty else pd.concat([df, TestBack], axis=1)
-
-    testback_result = result(TestBack)
-
-    return df, testback_result
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@st.cache_data
+def getDataFrame_analysis(market: str, stock: str, strategy: str, stop_loss: int, take_profit: int, date_interval: tuple[str, str]) ->  pd.DataFrame:
+    """
+    getDataFrame在analysis页面的实现...（带有缓存修饰器）
+    ## Parameters
+    - market: 市场
+    - stock: 股票
+    - strategy: 策略
+    - stop_loss: 止损倍率
+    - take_profit: 止盈倍率
+    - date_interval: 时间段
+    """
+    return getDataframe(market, stock, strategy, float(stop_loss), float(take_profit), date_interval)
 
 
 
@@ -138,8 +141,8 @@ def showAnalysisPage():
 
     with tab_Dataframe:
         if (stock != 'ALL'):
-            col_left, col_right = st.columns([0.7, 0.3])
-            df, res = getDataframe(market, stock, strategy, float(
+            col_left, col_right = st.columns([0.6, 0.4])
+            df, res = getDataFrame_analysis(market, stock, strategy, float(
                 stop_loss), float(take_profit), date_interval)
             with col_left:
                 st.dataframe(df, use_container_width=True)
@@ -156,7 +159,7 @@ def showAnalysisPage():
                     dtype='str', index=['result'])
                 st.dataframe(res_show.T, use_container_width=True)
         else:
-            RES = map(lambda s: getDataframe(market, s, strategy, float(
+            RES = map(lambda s: getDataFrame_analysis(market, s, strategy, float(
                 stop_loss), float(take_profit), date_interval)[1], single_stocks)
             res = pd.DataFrame(
                 columns=['ID', 'alldays', 'times', 'win_rate', 'total_returns', 'annual_returns'])

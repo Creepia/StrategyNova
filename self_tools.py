@@ -217,6 +217,53 @@ class NewPage:
         elif st.session_state["authentication_status"] is None:
             st.warning('Please enter your username and password')
 
+def getDataframe(market: str, stock: str, strategy: str, stop_loss: int, take_profit: int, date_interval: tuple[str, str]|bool,doTestback:bool=True) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    - 获取当前需要的Dataframe.（基础版本，没有缓存修饰器）
+    - 返回(df,testback_result).
+    - 返回的df带有 标准差 平均值 以及选择的策略需要的指标列.
+    - 返回的testback_result带有 ID alldays times win_rate total_returns annual_returns 列.
+    ## Parameters
+    - market: 市场
+    - stock: 股票
+    - strategy: 策略
+    - stop_loss: 止损倍率
+    - take_profit: 止盈倍率
+    - date_interval: 时间段，若为False，则不过滤时间
+    - doTestBack: 是否返回回测数据，若为False，仅返回Dataframe类型的df而非tuple
+    """
+    if date_interval!=False:
+        start_date, end_date = date_interval
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
+
+        df = pd.read_csv(f'public_source/{market}/{stock}')
+        # print(start_date,end_date)
+        df = df[(pd.to_datetime(df['日期']) >= start_date) & (
+            pd.to_datetime(df['日期']) <= end_date)].reset_index(drop=True)
+        # st.write(pd.to_datetime(df['日期']))
+
+    if doTestback:
+        df['STD'] = df['收盘'].rolling(50).std()
+        df['MA'] = df['收盘'].rolling(50).mean()
+
+    exp = apply_stragy(strategy, df)
+
+    if doTestback:
+        Signals = exp.eval()
+        TestBack = testback_data(Signals,stop_loss,take_profit).iloc[:,1:]
+        TestBack = TestBack.reset_index(drop=True)
+
+        # concat(df,TestBack)
+        df = df.copy() if TestBack.empty else TestBack.copy(
+        ) if df.empty else pd.concat([df, TestBack], axis=1)
+
+        testback_result = result(TestBack)
+        return df, testback_result
+    else:
+        return df
+
+
 
 def testback_data(buy_signals,stop_loss=1,take_profit=2,initial_cash = 1000000):
    
@@ -414,10 +461,19 @@ def plot_value_over_time(df):
     # 在Streamlit页面上显示图表
     st_pyecharts(line,width = 650, height=400)
 
+
+
+
+
+
+
+
+
+# Extend Indicators
+
 def Aroon(stockdata, window=25):
     # 计算Aroon Up和Aroon Down
     stockdata['Aroon_Up'] = (stockdata['最高'].rolling(window=window).apply(lambda x: x.argmax(), raw=True)+1) / window * 100
     stockdata['Aroon_Down'] =(stockdata['最低'].rolling(window=window).apply(lambda x: x.argmin(), raw=True)+1) / window * 100
-
 
 
