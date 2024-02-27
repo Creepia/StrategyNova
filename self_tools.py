@@ -9,9 +9,15 @@ import streamlit_authenticator as stauth
 import os
 import yaml
 import datetime
+
+from streamlit_echarts import st_pyecharts
 from yaml.loader import SafeLoader
 from self_tools import *
 from streamlit.components.v1 import html
+from pyecharts import options as opts
+from pyecharts.charts import Line, Scatter
+
+
 
 class Expression:
     """
@@ -308,8 +314,8 @@ def result(backtest_results,id=None,initial_cash=1000000):
 
     total_returns = (last_equity - initial_cash) / initial_cash
     annual_returns = (total_returns+1) ** (1/(len(backtest_results)/252))-1
-    stock_total_return = (backtest_results['Close'].iloc[-1] - backtest_results['Close'].iloc[0])/ backtest_results['Close'].iloc[0]-1
-    total_premium_return = total_returns- stock_total_return
+    stock_total_return = (backtest_results['Close'].iloc[-1] - backtest_results['Close'].iloc[0])/backtest_results['Close'].iloc[0]
+    total_premium_return = total_returns - stock_total_return
     annual_premium_return = (total_premium_return+1) ** (1/(len(backtest_results)/252))-1
 
 
@@ -324,54 +330,89 @@ def result(backtest_results,id=None,initial_cash=1000000):
         'annual_return_premium': annual_premium_return
     },dtype='float',index=['result'])
 
-def plot_buy_sell_points(df):
-    # 绘制折线图
-    plt.figure(figsize=(35, 15))
-    plt.plot(df['日期'], df['收盘'], label='Price')
 
-    # 标注买卖点
+def plot_buy_sell_points(df):
+    # 创建折线图对象
+    line = Line()
+
+    # 添加收盘价数据
+    line.add_xaxis(df['日期'].tolist())
+    line.add_yaxis("Price", df['收盘'].tolist())
+
+    # 创建散点图数据
+    scatter = Scatter()
+    # 添加买卖点
     buy_points = df[df['Position'] == 'buy']
     sell_points = df[df['Position'] == 'sell']
 
-    plt.scatter(buy_points['日期'], buy_points['收盘'], color='green', label='Buy', marker='^', s=50)
-    plt.scatter(sell_points['日期'], sell_points['收盘'], color='red', label='Sell', marker='v', s=50)
+    scatter.add_xaxis(buy_points['日期'].tolist())
+    scatter.add_yaxis("Buy", buy_points['收盘'].tolist(), symbol="triangle", symbol_size=5, label_opts=opts.LabelOpts(is_show=False))
 
-    # 添加标题、标签等
-    plt.title('Buy and Sell Points')
-    plt.xlabel('Date')
-    plt.ylabel('Close Price')
-    plt.legend()
-    plt.grid(True)
+    scatter.add_xaxis(sell_points['日期'].tolist())
+    scatter.add_yaxis("Sell", sell_points['收盘'].tolist(), symbol="diamond", symbol_size=5,  label_opts=opts.LabelOpts(is_show=False))
 
-    # 在Streamlit页面上显示图表 
-    st.pyplot(plt,use_container_width=True)
-
-def plot_value_over_time(df):
-    # 创建 Matplotlib 图表
-    fig, ax1 = plt.subplots(figsize=(35, 15))
-
-    # 绘制收盘价曲线
-    ax1.plot(df['日期'], df['收盘'], label='Price')
-
-    # 创建第二个 y 轴用于绘制价值变化曲线
-    ax2 = ax1.twinx()
-    ax2.plot(df['日期'], df['Value'], label='Value', color='orange')
+    line.overlap(scatter)
 
     # 设置标题、标签等
-    ax1.set_title('Price and Value Over Time')
-    ax1.set_xlabel('Date')
-    ax1.set_ylabel('Closing Price', color='blue')
-    ax2.set_ylabel('Portfolio Value', color='orange')
+    line.set_global_opts(
+        #title_opts=opts.TitleOpts(title="Buy and Sell Points"),
+        xaxis_opts=opts.AxisOpts(name="Date"),
+        yaxis_opts=opts.AxisOpts(name="Close Price"),
+        legend_opts=opts.LegendOpts(orient="horizontal", pos_top="bottom"),
+        tooltip_opts=opts.TooltipOpts(trigger="axis"),
+        toolbox_opts=opts.ToolboxOpts(
+            is_show=True,
+            orient="vertical",
+            pos_right="5%",
+            pos_top="15%",
+            feature={
+                "dataZoom": {"yAxisIndex": "none"},
+                "restore": {},
+            },
+        ),
+    )
+    # 在Streamlit页面上显示图表
+    st_pyecharts(line, width=650, height=400)
 
-    # 显示图例
-    ax1.legend(loc='upper left')
-    ax2.legend(loc='upper right')
 
-    # 显示网格
-    ax1.grid(True)
 
-    # 在 Streamlit 页面上显示图表
-    st.pyplot(fig, use_container_width=True)
+
+def plot_value_over_time(df):
+
+    plotframe = df.copy()
+    plotframe['Total Price Return'] = (df['收盘']/df['收盘'].iloc[0]-1)*100
+    plotframe['Total Strategy Return'] = (df['Value']/df['Value'].iloc[0]-1)*100
+
+    # 创建折线图对象
+    line = Line()
+
+    # 添加收盘价曲线数据
+    line.add_xaxis(plotframe['日期'].tolist())
+    line.add_yaxis("Stock Return(%)", plotframe['Total Price Return'].tolist(), symbol="circle", symbol_size=8)
+
+    # 添加价值变化曲线数据
+    line.add_yaxis("Strategy Return(%)", plotframe['Total Strategy Return'].tolist(), symbol="circle", symbol_size=8)
+
+    # 设置标题、标签等
+    line.set_global_opts(
+        #title_opts=opts.TitleOpts(title="Price and Value Over Time"),
+        xaxis_opts=opts.AxisOpts(name="Date"),
+        yaxis_opts=opts.AxisOpts(name="Total Return(%)", axislabel_opts=opts.LabelOpts(formatter="{value}")),
+        legend_opts=opts.LegendOpts(orient="horizontal", pos_top="bottom"),
+        tooltip_opts=opts.TooltipOpts(trigger="axis"),
+        toolbox_opts=opts.ToolboxOpts(
+            is_show=True,
+            orient="vertical",
+            pos_right="5%",
+            pos_top="15%",
+            feature={
+                "dataZoom": {"yAxisIndex": "none"},
+                "restore": {},
+            },
+        ),
+    )
+    # 在Streamlit页面上显示图表
+    st_pyecharts(line,width = 650, height=400)
 
 def Aroon(stockdata, window=25):
     # 计算Aroon Up和Aroon Down
