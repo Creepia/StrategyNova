@@ -2,7 +2,6 @@ from st_pages import show_pages_from_config
 import streamlit as st
 import pandas as pd
 from self_tools import NewPage
-from streamlit.components.v1 import html
 
 def showHomePage():
     """

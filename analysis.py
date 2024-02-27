@@ -2,6 +2,8 @@ from st_pages import show_pages_from_config
 import streamlit as st
 import pandas as pd
 import os
+
+from streamlit_echarts import st_pyecharts
 from self_tools import *
 from streamlit.components.v1 import html
 
@@ -52,8 +54,8 @@ def showAnalysisPage():
         stock = st.selectbox("Stock", single_stocks+['ALL'],key="analysis_stock")
 
         # 日期区间
-        from_day = st.text_input('From day', value="2000-01-01", key='from_day')
-        to_day = st.text_input('To day', value="2024-01-30", key='to_day')
+        from_day = st.text_input('From day', value="2000-01-01", key='analysis_from_day')
+        to_day = st.text_input('To day', value="2024-01-30", key='analysis_to_day')
         date_interval = (from_day, to_day)
 
         # 策略
@@ -109,14 +111,15 @@ def showAnalysisPage():
     with tab_Chart:
         if (stock != 'ALL'):
             # 示例数据
-            df['日期'] = pd.to_datetime(df['日期'])
             # 在Streamlit页面上显示图表
             st.title('Buy and Sell Points Visualization')
-            plot_buy_sell_points(df)
+            buy_sell_points_graph=graph_buy_sell_points(df)
+            st_pyecharts(buy_sell_points_graph, width=650, height=400)
 
             # 在 Streamlit 页面上显示图表
             st.title('Price and Value Over Time')
-            plot_value_over_time(df)
+            price_over_time_graph=graph_value_over_time(df)
+            st_pyecharts(price_over_time_graph,width = 650, height=400)
 
 
 

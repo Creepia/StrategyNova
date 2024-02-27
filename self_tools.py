@@ -1,16 +1,10 @@
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 import streamlit as st
-from st_pages import show_pages_from_config
-import talib as tal
 import streamlit_authenticator as stauth
 import os
 import yaml
 
-from streamlit_echarts import st_pyecharts
 from yaml.loader import SafeLoader
-from streamlit.components.v1 import html
 from pyecharts import options as opts
 from pyecharts.charts import Line, Scatter
 
@@ -96,15 +90,15 @@ def getDataframe(market: str, stock: str, strategy: str, stop_loss: int, take_pr
     - date_interval: 时间段，若为False，则不过滤时间
     - doTestBack: 是否返回回测数据，若为False，仅返回Dataframe类型的df而非tuple
     """
+    df = pd.read_csv(f'public_source/{market}/{stock}')
+    df['日期'] = pd.to_datetime(df['日期'])
+
     if date_interval!=False:
         start_date, end_date = date_interval
         start_date = pd.to_datetime(start_date)
         end_date = pd.to_datetime(end_date)
-
-        df = pd.read_csv(f'public_source/{market}/{stock}')
         # print(start_date,end_date)
-        df = df[(pd.to_datetime(df['日期']) >= start_date) & (
-            pd.to_datetime(df['日期']) <= end_date)].reset_index(drop=True)
+        df = df[(df['日期'] >= start_date) & (df['日期'] <= end_date)].reset_index(drop=True)
         # st.write(pd.to_datetime(df['日期']))
 
     if doTestback:
@@ -252,7 +246,13 @@ def result(backtest_results,id=None,initial_cash=1000000):
     },dtype='float',index=['result'])
 
 
-def plot_buy_sell_points(df):
+def graph_buy_sell_points(df:pd.DataFrame)->Line:
+    """
+    用于显示买卖点显示图.
+    读取一个有 日期 收盘 Position 列的dataframe，返回一个可以被st_pyecharts显示的Line对象.
+    ## Parameters
+    - df: dataframe
+    """
     # 创建折线图对象
     line = Line()
 
@@ -293,7 +293,7 @@ def plot_buy_sell_points(df):
         ),
     )
     # 在Streamlit页面上显示图表
-    st_pyecharts(line, width=650, height=400)
+    return line
 
 
 
@@ -301,11 +301,18 @@ def plot_buy_sell_points(df):
 
 
 
-def plot_value_over_time(df):
-
-    plotframe = df.copy()
-    plotframe['Total Price Return'] = (df['收盘']/df['收盘'].iloc[0]-1)*100
-    plotframe['Total Strategy Return'] = (df['Value']/df['Value'].iloc[0]-1)*100
+def graph_value_over_time(df):
+    """
+    用于显示 收盘价-时间 折线图.
+    读取一个有 日期 收盘 Value 列的dataframe，返回一个可以被st_pyecharts显示的Line对象.
+    ## Parameters
+    - df: dataframe
+    """
+    plotframe = pd.DataFrame({
+        '日期':df['日期'],
+        'Total Price Return':(df['收盘']/df['收盘'].iloc[0]-1)*100,
+        'Total Strategy Return':(df['Value']/df['Value'].iloc[0]-1)*100
+        })
 
     # 创建折线图对象
     line = Line()
@@ -336,7 +343,7 @@ def plot_value_over_time(df):
         ),
     )
     # 在Streamlit页面上显示图表
-    st_pyecharts(line,width = 650, height=400)
+    return line
 
 
 

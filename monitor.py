@@ -1,10 +1,9 @@
 from st_pages import show_pages_from_config
-from analysis import ALL_STRATEGIES
 import streamlit as st
 import pandas as pd
 import talib as tal
 from self_tools import *
-from streamlit.components.v1 import html
+from strategy_tools import ALL_STRATEGIES
 
 
 
@@ -16,7 +15,7 @@ def getDataFrame_monitor(market: str, stock: str, strategy: str, stop_loss: int,
     """
     getDataFrame在monitor页面的实现（带有缓存修饰器）
     """
-    return (getDataframe(market, stock, strategy, float(stop_loss), float(take_profit), date_interval,doTestback=True)[1]).tail(1)
+    return (getDataframe(market, stock, strategy, float(stop_loss), float(take_profit), date_interval,doTestback=True)[0]).tail(1)
 
 
 
