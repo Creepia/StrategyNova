@@ -9,7 +9,7 @@ from streamlit.components.v1 import html
 
 
 # Strategies added here will be able to be selected
-ALL_STRATEGIES = ['SMA', 'MACD','AROON'] 
+ALL_STRATEGIES = ['SMA', 'MACD','AROON', 'RSI', 'BOLLING']
 
 
 @st.cache_data
@@ -57,6 +57,16 @@ def getDataframe(market: str, stock: str, strategy: str, stop_loss: int, take_pr
     elif strategy=='AROON':
         Aroon(df)
         exp = Expression('Aroon_Up > 70 and Aroon_Down < 30 | Aroon_Up < 30 and Aroon_Down > 70', df)
+    elif strategy=='RSI':
+        df["RSI"] = tal.RSI(df['收盘'], timeperiod=14)
+        #买入条件：RSI小于30
+        #卖出：大于70
+        exp = Expression('RSI < 30 | RSI >70',df)
+    elif strategy=='BOLLING':
+
+        df['upper_band'], df['middle_band'], df['lower_band'] = tal.BBANDS(df['收盘'], timeperiod=14, nbdevup=2, nbdevdn=2)
+        # 如果收盘价上穿 BOLL 上轨，则买入 ; 如果收盘价下穿 BOLL 下轨，则开盘卖掉
+        exp = Expression('收盘 crossup upper_band | 收盘 crossdown lower_band', df)
 
 
 
