@@ -58,6 +58,8 @@ def getDataframe(market: str, stock: str, strategy: str, stop_loss: int, take_pr
         Aroon(df)
         exp = Expression('Aroon_Up > 70 and Aroon_Down < 30 | Aroon_Up < 30 and Aroon_Down > 70', df)
 
+
+
     Signals = exp.eval()
     TestBack = testback_data(Signals,stop_loss,take_profit).iloc[:,1:]
     TestBack = TestBack.reset_index(drop=True)
@@ -138,7 +140,9 @@ def showAnalysisPage():
                     'times': res['times'].iloc[0],
                     'win_rate': str(round(res['win_rate'].iloc[0]*100, 2))+"%",
                     'total_returns': str(round(res['total_returns'].iloc[0]*100, 2))+"%",
-                    'annual_returns': str(round(res['annual_returns'].iloc[0]*100, 2))+"%"},
+                    'annual_returns': str(round(res['annual_returns'].iloc[0]*100, 2))+"%",
+                    'total_return_premium': str(round(res['total_return_premium'].iloc[0] * 100, 2)) + "%",
+                    'annual_return_premium': str(round(res['annual_return_premium'].iloc[0] * 100, 2)) + "%"},
                     dtype='str', index=['result'])
                 st.dataframe(res_show.T, use_container_width=True)
         else:
