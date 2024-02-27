@@ -29,7 +29,9 @@ def getDataFrame_monitor(market: str, stock: str, strategy: str, stop_loss: int,
 
 
 def showMonitorPage():
-
+    """
+    显示Monitor页面.
+    """
     # Show pages
     show_pages_from_config(".streamlit/pages.toml")
 

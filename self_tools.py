@@ -3,171 +3,26 @@ import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
 from st_pages import show_pages_from_config
-from shutil import rmtree
 import talib as tal
 import streamlit_authenticator as stauth
 import os
 import yaml
-import datetime
 
 from streamlit_echarts import st_pyecharts
 from yaml.loader import SafeLoader
-from self_tools import *
+from strategy_tools import *
 from streamlit.components.v1 import html
 from pyecharts import options as opts
 from pyecharts.charts import Line, Scatter
 
 
 
-class Expression:
-    """
-    - 用来创建一个策略表达式.
-    """
-    def __init__(self,s:str,data:pd.DataFrame):
-        '''
-        ## Parameters
-        - s: A sequence of dataframes and operators, splited in one space.
-        - data: the dataframe.
-        ## Examples
-        #### exp=Expression('MACD < 0 | MACD > 0',df) \n
-        - Meaning the buy condition is MACD < 0, sell condition is MACD > 0.
-        - The dataframe df should have 'MACD' column.
-        - Precedences of tokens: | or and OR AND > crossup + * **.
-        - Use Signals=exp.eval() for getting the result.
-        '''
-        self.data=data
-        self.tokens:list[str|pd.DataFrame]=[]
-        self.values_stack:list[pd.DataFrame]=[]
-        self.symbols_stack:list[str]=[]
-        self.precedences={
-            '$':0,
-            '|':1,
-            'or':2,
-            'and':3,
-            'OR':4,
-            'AND':5,
-            '>':6,
-            '<':6,
-            '>=':6,
-            '<=':6,
-            '==':6,
-            'crossup':7,
-            'crossdown':7,
-            '+':8,
-            '-':8,
-            '*':9,
-            '/':9,
-            '**':10
-        }
-        for token in s.split(' '):
-            if token in self.precedences:
-                self.tokens.append(token)
-            elif token.isdigit():
-                self.tokens.append(pd.Series(np.repeat(float(token),data.shape[0])))
-            elif token in data.columns:
-                self.tokens.append(data[token])
-            elif token=='RANDOM':
-                rand_signals = pd.Series(np.random.randint(3,size=data.shape[0]))
-                rand_signals = rand_signals.replace({0:'',1:'buy',2:'sell'})
-                self.tokens.append(rand_signals)
-            else:
-                en_support={
-                    'Date':'日期',
-                    'Open':'开盘',
-                    'Close':'收盘',
-                    'High':'最高',
-                    'Low':'最低'
-                }
-                if token in en_support:
-                    self.tokens.append(data[en_support[token]])
-                else:
-                    print('Invalid Expression')
-        # st.write(self.tokens)
 
-    def doOp(self):
-        op = self.symbols_stack.pop()
-        y = self.values_stack.pop()
-        x = self.values_stack.pop()
-        # ('==============\n==============',op,y,x,sep='\n')
-        # First deal with them as 'buy' signals, then change the signals to 'sell' when operating '|'
-        if op == '|':
-            # st.write(x)
-            # st.write(y)
-            y=np.where(y=='buy','sell',None)
-            x=pd.DataFrame({'signals':x})
-            y=pd.DataFrame({'signals':y})
-            signals=x.combine_first(y)
-            # st.write(signals)
-            self.values_stack.append(signals)
-        elif op == 'and' or op == 'AND':
-            signals=x.where(x==y,None)
-            self.values_stack.append(signals)
-        elif op == 'or' or op== 'OR':
-            signals=np.where(x=='buy',True,False) | np.where(y=='buy',True,False)
-            signals=np.where(signals,'buy',None)
-            self.values_stack.append(signals)
-        elif op == '>':
-            signals = pd.Series(np.where(x > y, 'buy', None))
-            self.values_stack.append(signals)
-        elif op == '>=':
-            signals = pd.Series(np.where(x >= y, 'buy', None))
-            self.values_stack.append(signals)
-        elif op == '<':
-            signals = pd.Series(np.where(x < y, 'buy', None))
-            self.values_stack.append(signals)
-        elif op == '<=':
-            signals = pd.Series(np.where(x <= y, 'buy', None))
-            self.values_stack.append(signals)
-        elif op == '==':
-            signals = pd.Series(np.where(x == y, 'buy', None))
-            self.values_stack.append(signals)
-        elif op == 'crossup':
-            signals=pd.Series(np.where((x.shift() < y.shift()) & (x > y),'buy',None))
-            self.values_stack.append(signals)
-        elif op == 'crossdown':
-            signals=pd.Series(np.where((x.shift() > y.shift()) & (x < y),'buy',None))
-            self.values_stack.append(signals)
-        elif op=='+':
-            self.values_stack.append(x+y)
-        elif op=='-':
-            self.values_stack.append(x-y)
-        elif op=='*':
-            self.values_stack.append(x*y)
-        elif op=='/':
-            self.values_stack.append(x/y)
-        elif op=='**':
-            self.values_stack.append(x**y)
-        # print(self.values_stack[-1],'==============\n==============',sep='\n')
-    def repeatOps(self,op):
-        while len(self.values_stack)>1 and self.precedences[op]<=self.precedences[self.symbols_stack[-1]]:
-            #st.write(op)
-            self.doOp()
-            #st.write(self.values_stack[-1])
-    def eval(self):
-        # st.write(self.tokens)
-        for token in self.tokens:
-            # print(token,type(token))
-            if isinstance(token,str):
-                # print('===A str===')
-                self.repeatOps(token)
-                self.symbols_stack.append(token)
-            elif isinstance(token,pd.Series) or isinstance(token,pd.DataFrame):
-                # print('===A dataframe===')
-                self.values_stack.append(token)
-        self.repeatOps('$')
-        # st.write(self.values_stack[-1])
-        self.values_stack[-1] = pd.DataFrame({'日期':self.data['日期'],'收盘':self.data['收盘'],'signals':self.values_stack[-1]['signals']})
-        
-        if 'STD' in self.data:
-            self.values_stack[-1]['STD']=self.data['STD']
-        if 'MA' in self.data:
-            self.values_stack[-1]['MA']=self.data['MA']
-        # st.write(self.values_stack)
-        # st.write(self.symbols_stack)
-        if not (len(self.values_stack)==1 and len(self.symbols_stack)==0):
-            print('Something Wrong of calculating signals')
-        
-        return self.values_stack[-1]
+
+
+
+
+
 
 class NewPage:
     """
@@ -217,6 +72,14 @@ class NewPage:
         elif st.session_state["authentication_status"] is None:
             st.warning('Please enter your username and password')
 
+
+
+
+
+
+
+
+
 def getDataframe(market: str, stock: str, strategy: str, stop_loss: int, take_profit: int, date_interval: tuple[str, str]|bool,doTestback:bool=True) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     - 获取当前需要的Dataframe.（基础版本，没有缓存修饰器）
@@ -247,7 +110,7 @@ def getDataframe(market: str, stock: str, strategy: str, stop_loss: int, take_pr
         df['STD'] = df['收盘'].rolling(50).std()
         df['MA'] = df['收盘'].rolling(50).mean()
 
-    exp = apply_stragy(strategy, df)
+    exp = apply_strategy(strategy, df)
 
     if doTestback:
         Signals = exp.eval()
@@ -262,6 +125,11 @@ def getDataframe(market: str, stock: str, strategy: str, stop_loss: int, take_pr
         return df, testback_result
     else:
         return df
+
+
+
+
+
 
 
 
@@ -325,6 +193,11 @@ def testback_data(buy_signals,stop_loss=1,take_profit=2,initial_cash = 1000000):
         # if both DataFrames non empty
         backtest = backtest.copy() if backtest_row.empty else backtest_row.copy() if backtest.empty else pd.concat([backtest, backtest_row])
     return backtest
+
+
+
+
+
 
 def result(backtest_results,id=None,initial_cash=1000000):
     # Avoid empty dataframes
@@ -424,6 +297,9 @@ def plot_buy_sell_points(df):
 
 
 
+
+
+
 def plot_value_over_time(df):
 
     plotframe = df.copy()
@@ -467,13 +343,5 @@ def plot_value_over_time(df):
 
 
 
-
-
-# Extend Indicators
-
-def Aroon(stockdata, window=25):
-    # 计算Aroon Up和Aroon Down
-    stockdata['Aroon_Up'] = (stockdata['最高'].rolling(window=window).apply(lambda x: x.argmax(), raw=True)+1) / window * 100
-    stockdata['Aroon_Down'] =(stockdata['最低'].rolling(window=window).apply(lambda x: x.argmin(), raw=True)+1) / window * 100
 
 

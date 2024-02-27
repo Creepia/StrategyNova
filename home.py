@@ -1,11 +1,13 @@
 from st_pages import show_pages_from_config
 import streamlit as st
 import pandas as pd
-from self_tools import *
+from self_tools import NewPage
 from streamlit.components.v1 import html
 
 def showHomePage():
-    
+    """
+    显示Home页面.
+    """
     # Show pages
     show_pages_from_config(".streamlit/pages.toml")
 
