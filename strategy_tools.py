@@ -126,7 +126,10 @@ class Expression:
             #st.write(op)
             self.doOp()
             #st.write(self.values_stack[-1])
-    def eval(self):
+    def eval(self)->pd.DataFrame:
+        """
+        返回一个包括 日期 收盘 signals 三列的dataframe.
+        """
         # st.write(self.tokens)
         for token in self.tokens:
             # print(token,type(token))
@@ -207,9 +210,7 @@ def apply_strategy(strategy:str, df:pd.DataFrame)->Expression:
         # 买入条件：K线向上穿过D线
         # 卖出条件：K线向下穿过D线
         exp = Expression('KLine crossup DLine | KLine crossdown DLine', df)
-    elif strategy=='MACD KDJ':
-        exp1=apply_strategy("MACD",df)
-        exp2=apply_strategy("KDJ",df)
+
     return exp
 
 

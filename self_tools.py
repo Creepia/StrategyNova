@@ -10,10 +10,11 @@ import yaml
 
 from streamlit_echarts import st_pyecharts
 from yaml.loader import SafeLoader
-from strategy_tools import *
 from streamlit.components.v1 import html
 from pyecharts import options as opts
 from pyecharts.charts import Line, Scatter
+
+from strategy_tools import *
 
 
 

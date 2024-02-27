@@ -16,7 +16,7 @@ def getDataFrame_monitor(market: str, stock: str, strategy: str, stop_loss: int,
     """
     getDataFrame在monitor页面的实现（带有缓存修饰器）
     """
-    return getDataframe(market, stock, strategy, float(stop_loss), float(take_profit), date_interval,doTestback=False).tail(1)
+    return (getDataframe(market, stock, strategy, float(stop_loss), float(take_profit), date_interval,doTestback=True)[1]).tail(1)
 
 
 
