@@ -166,7 +166,7 @@ class Expression:
 
 
 
-ALL_STRATEGIES = ['SMA', 'MACD','AROON', 'RSI', 'BOLLING','KDJ']
+ALL_STRATEGIES = ['SMA', 'MACD','AROON', 'RSI', 'BOLLING','KDJ','DMI','ROC']
 """
 Strategies added here will be able to be selected
 """
@@ -210,7 +210,15 @@ def apply_strategy(strategy:str, df:pd.DataFrame)->Expression:
         # 买入条件：K线向上穿过D线
         # 卖出条件：K线向下穿过D线
         exp = Expression('KLine crossup DLine | KLine crossdown DLine', df)
-
+    elif strategy=='DMI':
+        df['plus_di'] = tal.PLUS_DI(df['最高'], df['最低'], df['收盘'], timeperiod=14)
+        df['minus_di'] = tal.MINUS_DI(df['最高'], df['最低'], df['收盘'], timeperiod=14)
+        # 当+DI高于-DI时，如果报价的上升(或下降)趋势非常明显，则发出买入信号；当+DI低于-DI时，发出卖出信号。
+        exp = Expression('plus_di crossup minus_di | plus_di crossdown minus_di', df)
+    elif strategy =='ROC':
+        df['ROC'] = tal.ROC(df['收盘'], timeperiod=14)
+        # 当ROC指标大于0时买入，小于0时卖出。
+        exp = Expression('ROC > 0 | ROC < 0', df)
     return exp
 
 
