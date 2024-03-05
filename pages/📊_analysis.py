@@ -79,11 +79,11 @@ def showAnalysisPage():
 
     with tab_Dataframe:
         if (stock != 'ALL'):
-            col_left, col_right = st.columns([0.7, 0.3])
+            col_left, col_right = st.columns([0.66, 0.34])
             df, res = getDataFrame_analysis(market, stock, strategy, float(
                 stop_loss), float(take_profit), date_interval)
             with col_left:
-                st.dataframe(df, use_container_width=True,hide_index=True)
+                st.dataframe(df,height=500,use_container_width=True,hide_index=True)
             with col_right:
                 res_show = pd.DataFrame({
                     'ID': res['ID'].iloc[0],
@@ -113,15 +113,17 @@ def showAnalysisPage():
         if (stock != 'ALL'):
             # 示例数据
             # 在Streamlit页面上显示图表
-            f'### {df.iloc[0,0]}'
-            st.title('Buy and Sell Points Visualization')
+            # f'{df.iloc[0,0]}'
+            st.write(f'''<h3 style="text-align:center;padding:0;">Buy and Sell Points Visualization</h3>''', unsafe_allow_html=True)
+
             buy_sell_points_graph=graph_buy_sell_points(df)
-            st_pyecharts(buy_sell_points_graph, width=650, height=400)
+            st_pyecharts(buy_sell_points_graph, width='95%', height='450%')
 
             # 在 Streamlit 页面上显示图表
-            st.title('Price and Value Over Time')
+            st.write(f'''<h3 style="text-align:center;padding:0;">Price and Value Over Time</h3>''', unsafe_allow_html=True)
+
             price_over_time_graph=graph_value_over_time(df)
-            st_pyecharts(price_over_time_graph,width = 650, height=400)
+            st_pyecharts(price_over_time_graph,width = '95%', height='450%')
 
 
 

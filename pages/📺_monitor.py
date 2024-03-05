@@ -17,7 +17,7 @@ def getDataFrame_monitor(market: str, stock: str, strategy: str, stop_loss: int,
     """
     getDataFrame在monitor页面的实现（带有缓存修饰器）
     """
-    return (getDataframe(market, stock, strategy, float(stop_loss), float(take_profit), date_interval,doTestback=True)[0]).tail(1)
+    return (getDataframe(market, stock, strategy, float(stop_loss), float(take_profit), date_interval,doTestback=True)[0]).tail(1).loc[:,['股票名称','日期','Close','Position']]
 
 
 
@@ -71,9 +71,22 @@ def showMonitorPage():
     # 主页面
     tab_Dataframes, tab_Others = st.tabs(['Dataframe', 'Others'])
     with tab_Dataframes:
+        def highlight_positions(d):
+            '''
+            這是為Monitor輸出增加高亮色的函數.
+            '''
+            # st.dataframe(d)
+            if d['Position'] == 'buy':
+                return ['background-color: green','','','']
+            elif d['Position'] == 'sell':
+                return ['background-color: red','','','']
+            else:
+                return ['','','','']
         for i in range(len(dfs)):
             st.write(ALL_STRATEGIES[i])
-            st.dataframe(dfs[i])
+            dfs_styled=(dfs[i]).style.apply(highlight_positions, axis=1)
+            st.dataframe(dfs_styled,width=500,hide_index=True)
+            # st.dataframe(dfs[i])
 
 
 

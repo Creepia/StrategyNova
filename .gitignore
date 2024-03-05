@@ -9,3 +9,5 @@ python310/*
 .idea/*
 users/*
 python310.zip
+__pycache__/self_tools.cpython-310.pyc
+__pycache__/strategy_tools.cpython-310.pyc

@@ -177,7 +177,7 @@ def testback_data(buy_signals,stop_loss=1,take_profit=2,initial_cash = 1000000):
             equity += shares * close
             shares = 0  # 持有股票数量置为0
         else:
-            position = ""
+            position = None
             equity = equity
             shares = shares
         value = shares *close + equity
