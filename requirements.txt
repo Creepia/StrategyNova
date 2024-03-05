@@ -1,9 +1,14 @@
-efinance==0.5.0
-numpy==1.24.3
-pandas==2.1.4
-st_pages==0.4.5
-streamlit==1.30.0
-TA_Lib==0.4.24
-streamlit-authenticator==0.2.3
-matplotlib==3.8.2
+# efinance==0.5.0
+# numpy==1.24.3
+numpy==1.26.4
+# pandas==2.1.4
+pandas==2.2.1
+# st_pages==0.4.5
+# streamlit==1.30.0
+streamlit #1.13.1
+# TA_Lib==0.4.24 You need to install this package manually
+# streamlit-authenticator==0.2.3
+streamlit-authenticator==0.3.1
+# matplotlib==3.8.2
+matplotlib==3.8.3
 streamlit-echarts==0.4.0

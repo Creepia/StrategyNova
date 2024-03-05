@@ -1,11 +1,13 @@
-from st_pages import show_pages_from_config
 import streamlit as st
 import pandas as pd
 import talib as tal
 from self_tools import *
 from strategy_tools import ALL_STRATEGIES
 
-
+st.set_page_config(
+    page_title="Monitor",
+    page_icon="📺"
+)
 
 
 
@@ -32,10 +34,12 @@ def showMonitorPage():
     显示Monitor页面.
     """
 
-    st.write('<style>div.block-container{padding:1% 1%;max-width:95%}</style>', unsafe_allow_html=True)
-
-    # Show pages
-    show_pages_from_config(".streamlit/pages.toml")
+    st.write(
+        '''<style>
+        div.block-container{padding:1% 1%;max-width:95%;}
+        section[data-testid="stSidebar"]{width:35rem;}
+        </style>'''
+             , unsafe_allow_html=True)
 
     # 侧边栏
     with st.sidebar:

@@ -46,7 +46,7 @@ class NewPage:
             st.session_state['authentication_status'] = None
 
         if st.session_state['authentication_status'] is not True:
-            authenticator.login('Login', 'main')
+            authenticator.login(location='main')
 
         # 根据认证状态显示内容
         if st.session_state["authentication_status"] is True:
@@ -61,7 +61,6 @@ class NewPage:
                 # 登出部分
                 # authenticator.logout('Logout', 'main', key=key+'logout_button')
                 pass
-
         elif st.session_state["authentication_status"] is False:
             st.error('Username/password is incorrect')
         elif st.session_state["authentication_status"] is None:

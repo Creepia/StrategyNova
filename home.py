@@ -1,22 +1,25 @@
-from st_pages import show_pages_from_config
 import streamlit as st
 import pandas as pd
 from self_tools import NewPage
+
+st.set_page_config(
+    page_title="Home",
+    page_icon="🏠",
+    initial_sidebar_state = "collapsed"
+)
 
 def showHomePage():
     """
     显示Home页面.
     """
-    st.write('<style>div.block-container{padding:1% 1%;max-width:95%}</style>', unsafe_allow_html=True)
-    # Show pages
-    show_pages_from_config(".streamlit/pages.toml")
+    # st.write('<style>div.block-container{padding:1% 1%;max-width:95%}</style>', unsafe_allow_html=True)
 
-    f'### Welcome {st.session_state["name"]}!'
-
-    """
-    - No item here yet...
-    - Something should be shown in home page...
-    """
+    st.write(f'''
+             <h1 style="text-align:center">Welcome {st.session_state["name"]}</h1>
+             <p style="text-align:center">No item here yet...</p>
+             <p style="text-align:center">Something should be shown...</p>
+             '''
+             , unsafe_allow_html=True)
 
 
 page=NewPage(showHomePage,"home")

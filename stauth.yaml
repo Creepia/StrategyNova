@@ -2,20 +2,24 @@ credentials:
   usernames:
     userA:
       email: userA@gmail.com
+      logged_in: False # Will be managed automatically
       name: userA
-      password: $2b$12$WBzLdEWI1w/wRCskLmU1WuLU2FzuP4VMIMgpf/8Sm8xxtYhgJVIWe 
+      password: password1A
     userB:
       email: userB@gmail.com
+      logged_in: False # Will be managed automatically
       name: userB
-      password: $2b$12$/km2ybsNE.o734M3lZ/IR.pNMsOUw/b6uBMH.lEXEu9TcQbylvbDG
+      password: password2B
     userC:
       email: userC@gmail.com
+      logged_in: False # Will be managed automatically
       name: userC
-      password: $2b$12$zYWWSA695KikGl8qAnpYc.41ZQ8AYBxmfbmY5cJipxhcjAQImjV.K
+      password: password3C
     userD:
       email: userD@gmail.com
+      logged_in: False # Will be managed automatically
       name: userD
-      password: $2b$12$INwi7MQD.AkIRmFMnXyAG.3rrfgktVPFZ3J7m8OtB5Cz0oseFLZlm
+      password: password4D
 cookie:
   expiry_days: 7
   key: some_signature_key # Must be string

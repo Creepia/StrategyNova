@@ -1,13 +1,14 @@
-from st_pages import show_pages_from_config
 import streamlit as st
 import pandas as pd
 import os
 
 from streamlit_echarts import st_pyecharts
 from self_tools import *
-from streamlit.components.v1 import html
 
-
+st.set_page_config(
+    page_title="Analysis",
+    page_icon="📊"
+)
 
 @st.cache_data
 def getDataFrame_analysis(market: str, stock: str, strategy: str, stop_loss: int, take_profit: int, date_interval: tuple[str, str]) ->  pd.DataFrame:
@@ -39,9 +40,6 @@ def showAnalysisPage():
     """
 
     st.write('<style>div.block-container{padding:1% 1%;max-width:95%}</style>', unsafe_allow_html=True)
-
-    # Show pages
-    show_pages_from_config(".streamlit/pages.toml")
     
     # 侧边栏
     with st.sidebar:
@@ -81,11 +79,11 @@ def showAnalysisPage():
 
     with tab_Dataframe:
         if (stock != 'ALL'):
-            col_left, col_right = st.columns([0.6, 0.4])
+            col_left, col_right = st.columns([0.7, 0.3])
             df, res = getDataFrame_analysis(market, stock, strategy, float(
                 stop_loss), float(take_profit), date_interval)
             with col_left:
-                st.dataframe(df, use_container_width=True)
+                st.dataframe(df, use_container_width=True,hide_index=True)
             with col_right:
                 res_show = pd.DataFrame({
                     'ID': res['ID'].iloc[0],
@@ -115,6 +113,7 @@ def showAnalysisPage():
         if (stock != 'ALL'):
             # 示例数据
             # 在Streamlit页面上显示图表
+            f'### {df.iloc[0,0]}'
             st.title('Buy and Sell Points Visualization')
             buy_sell_points_graph=graph_buy_sell_points(df)
             st_pyecharts(buy_sell_points_graph, width=650, height=400)
