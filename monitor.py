@@ -31,6 +31,9 @@ def showMonitorPage():
     """
     显示Monitor页面.
     """
+
+    st.write('<style>div.block-container{padding:1% 1%;max-width:95%}</style>', unsafe_allow_html=True)
+
     # Show pages
     show_pages_from_config(".streamlit/pages.toml")
 
