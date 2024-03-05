@@ -6,3 +6,6 @@ maxUploadSize = 300
 [theme]
 base="dark"
 primaryColor="#ff6868"
+
+[ui]
+hideTopBar = false

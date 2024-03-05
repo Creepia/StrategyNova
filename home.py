@@ -7,6 +7,7 @@ def showHomePage():
     """
     显示Home页面.
     """
+    st.write('<style>div.block-container{padding:1% 1%;max-width:95%}</style>', unsafe_allow_html=True)
     # Show pages
     show_pages_from_config(".streamlit/pages.toml")
 
@@ -16,5 +17,6 @@ def showHomePage():
     - No item here yet...
     - Something should be shown in home page...
     """
+
 
 page=NewPage(showHomePage,"home")
