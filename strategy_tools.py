@@ -166,7 +166,7 @@ class Expression:
 
 
 
-ALL_STRATEGIES = ['SMA', 'MACD','AROON', 'RSI', 'BOLLING','KDJ','DMI','ROC','SMI', 'WPR']
+ALL_STRATEGIES = ['SMA', 'MACD','AROON', 'RSI', 'BOLLING','KDJ','DMI','ROC','SMI', 'WPR', 'SAR','CCI', 'OBV']
 """
 Strategies added here will be able to be selected
 """
@@ -228,6 +228,39 @@ def apply_strategy(strategy:str, df:pd.DataFrame)->Expression:
         # 翻转数值成正数
         # -80%以下判斷為超賣，-20%以上判斷為超買
         exp = Expression('WPR > 80 | WPR < 20', df)
+    elif strategy == 'SAR':
+        # SAR 止盈 止损类指标
+        df['SAR'] = tal.SAR(df['最高'], df['最低'], acceleration=0.02, maximum=0.2)
+        df['yesterdayclose'] = df['收盘'].shift(1).fillna(0)
+        #股价曲线由下向上突破SAR曲线时，为买进讯号。股价曲线由下向上突破SAR曲线时，为买进讯号。反之卖出
+        exp = Expression('yesterdayclose < 收盘 and 收盘 crossup SAR | yesterdayclose > 收盘 and 收盘 crossdown SAR', df)
+    elif strategy == 'CCI':
+        df['TP'] = (df['最高']+df['最低']+df['收盘'])/3
+        df['MA'] = df['TP'].rolling(window=20).mean()
+        df['MD'] = df['TP'].rolling(window=20).std()
+        df['CCI'] = (df['TP']-df['MA'])/(df['MD']*0.015)
+        df['CCIyesterday'] = df['CCI'].shift(1).fillna(0)
+        #这里只捕捉了超买的非正常区间，大于100 超买，也买入，直到看到下降趋势
+        exp = Expression('CCI > 100 | CCI < CCIyesterday',df)
+    elif strategy =='OBV':
+        # 使用 TA-Lib 库的 OBV 函数来计算 OBV 指标
+        df['OBV'] = tal.OBV(df['收盘'], df['成交量'])
+        df['OBV_lag1'] = df['OBV'].shift(1).fillna(0)
+        df['OBV_lag2'] = df['OBV'].shift(2).fillna(0)
+        df['OBV_lag3'] = df['OBV'].shift(3).fillna(0)
+        df['OBV_lag4'] = df['OBV'].shift(4).fillna(0)
+        df['close_lag1'] = df['收盘'].shift(1).fillna(0)
+        df['close_lag2'] = df['收盘'].shift(2).fillna(0)
+        df['close_lag3'] = df['收盘'].shift(3).fillna(0)
+        df['close_lag4'] = df['收盘'].shift(4).fillna(0)
+        # obv 与 股价连续五天上涨，买入；连续五天下跌，卖出
+        exp = Expression('OBV > OBV_lag1 and OBV_lag1 > OBV_lag2 and OBV_lag2 > OBV_lag3 and OBV_lag3 > OBV_lag4 and \
+                         收盘 > close_lag1 and close_lag1 > close_lag2 and close_lag2 > close_lag3 and close_lag3 > close_lag4 \
+                          | OBV < OBV_lag1 and OBV_lag1 < OBV_lag2 and OBV_lag2 < OBV_lag3 and OBV_lag3 < OBV_lag4 and \
+                         收盘 < close_lag1 and close_lag1 < close_lag2 and close_lag2 < close_lag3 and close_lag3 < close_lag4',df)
+
+
+
     return exp
 
 
