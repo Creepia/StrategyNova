@@ -166,7 +166,7 @@ class Expression:
 
 
 
-ALL_STRATEGIES = ['SMA', 'MACD','AROON', 'RSI', 'BOLLING','KDJ','DMI','ROC']
+ALL_STRATEGIES = ['SMA', 'MACD','AROON', 'RSI', 'BOLLING','KDJ','DMI','ROC','SMI', 'WPR']
 """
 Strategies added here will be able to be selected
 """
@@ -219,6 +219,15 @@ def apply_strategy(strategy:str, df:pd.DataFrame)->Expression:
         df['ROC'] = tal.ROC(df['收盘'], timeperiod=14)
         # 当ROC指标大于0时买入，小于0时卖出。
         exp = Expression('ROC > 0 | ROC < 0', df)
+    elif strategy == 'SMI':
+        SMI(df)
+        # 当SMI线从下方向上穿过信号线时，表示买入信号。当SMI线从上方向下穿过信号线时，表示卖出信号。
+        exp = Expression('SMI crossup signal_line | SMI crossdown signal_line', df)
+    elif strategy == 'WPR':
+        df['WPR'] = (tal.WILLR(df['最高'], df['最低'], df['收盘'], timeperiod=14)) * (-1)
+        # 翻转数值成正数
+        # -80%以下判斷為超賣，-20%以上判斷為超買
+        exp = Expression('WPR > 80 | WPR < 20', df)
     return exp
 
 
@@ -229,6 +238,17 @@ def Aroon(stockdata, window=25):
     stockdata['Aroon_Up'] = (stockdata['最高'].rolling(window=window).apply(lambda x: x.argmax(), raw=True)+1) / window * 100
     stockdata['Aroon_Down'] =(stockdata['最低'].rolling(window=window).apply(lambda x: x.argmin(), raw=True)+1) / window * 100
 
+
+
+def SMI(stockdata, period=14, ema_period=3, signal_period=5):
+    # 计算动量值
+    stockdata['momentum'] = tal.MOM(stockdata['收盘'], timeperiod=period)
+    # 计算动量值的移动平均
+    stockdata['momentum_ema'] = tal.EMA(stockdata['momentum'], timeperiod=ema_period)
+    # 计算SMI线
+    stockdata['SMI'] = stockdata['momentum'] - stockdata['momentum_ema']
+    # 计算SMI的信号线
+    stockdata['signal_line'] = tal.EMA(stockdata['SMI'], timeperiod=signal_period)
 
 
 
