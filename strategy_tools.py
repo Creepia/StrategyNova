@@ -166,7 +166,7 @@ class Expression:
 
 
 
-ALL_STRATEGIES = ['SMA', 'MACD','AROON', 'RSI', 'BOLLING','KDJ','DMI','ROC','SMI', 'WPR', 'SAR','CCI', 'OBV']
+ALL_STRATEGIES = ['SMA', 'MACD','AROON', 'RSI', 'BOLLING','KDJ','DMI','ROC','SMI', 'WPR', 'SAR','CCI', 'OBV', 'PVT']
 """
 Strategies added here will be able to be selected
 """
@@ -258,9 +258,20 @@ def apply_strategy(strategy:str, df:pd.DataFrame)->Expression:
                          收盘 > close_lag1 and close_lag1 > close_lag2 and close_lag2 > close_lag3 and close_lag3 > close_lag4 \
                           | OBV < OBV_lag1 and OBV_lag1 < OBV_lag2 and OBV_lag2 < OBV_lag3 and OBV_lag3 < OBV_lag4 and \
                          收盘 < close_lag1 and close_lag1 < close_lag2 and close_lag2 < close_lag3 and close_lag3 < close_lag4',df)
+    elif strategy == 'PVT':
+        df['PVT'] = ((df['收盘'] - df['收盘'].shift(1).fillna(0)) / df['收盘'].shift(1)) * df['成交量']
+        df['PVT'] = df['PVT'].fillna(0).cumsum()
+        df['PVT_lag1'] = df['PVT'].shift(1).fillna(0)
+        df['PVT_lag7'] = df['PVT'].shift(7).fillna(0)
+        df['close_lag1'] = df['收盘'].shift(1).fillna(0)
+        df['close_lag7'] = df['收盘'].shift(7).fillna(0)
+        # 共涨买入，共跌卖出
+        # PVT = [((CurrentClose - PreviousClose) / PreviousClose) x Volume] + PreviousPVT
+        exp = Expression('PVT > PVT_lag1 and 收盘 > close_lag1 | PVT < PVT_lag1 and 收盘 < close_lag1', df)
+        # 觉得这个策略很差劲。。
 
 
-
+        
     return exp
 
 
