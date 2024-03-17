@@ -1,11 +1,13 @@
 import talib as tal
 import pandas as pd
 import numpy as np
+import re
+
 
 class Expression:
-    """
+    '''
     - 用来创建一个策略表达式.
-    """
+    '''
     def __init__(self,s:str,data:pd.DataFrame):
         '''
         ## Parameters
@@ -25,24 +27,25 @@ class Expression:
         self.precedences={
             '$':0,
             '|':1,
-            'or':2,
-            'and':3,
-            'OR':4,
-            'AND':5,
-            '>':6,
-            '<':6,
-            '>=':6,
-            '<=':6,
-            '==':6,
-            'crossup':7,
-            'crossdown':7,
-            '+':8,
-            '-':8,
-            '*':9,
-            '/':9,
-            '**':10
+            '(':2,
+            ')':2,
+            'or':3,
+            'and':4,
+            '>':5,
+            '<':5,
+            '>=':5,
+            '<=':5,
+            '==':5,
+            'crossup':6,
+            'crossdown':6,
+            '+':7,
+            '-':7,
+            '*':8,
+            '/':8,
+            '**':9
         }
-        for token in s.split(' '):
+        # print(re.split(r'(\(|\)|\s)\s*',s))
+        for token in re.split(r'\s*(\(|\)|\s)\s*',s):
             if token in self.precedences:
                 self.tokens.append(token)
             elif token.isdigit():
@@ -53,6 +56,8 @@ class Expression:
                 rand_signals = pd.Series(np.random.randint(3,size=data.shape[0]))
                 rand_signals = rand_signals.replace({0:'',1:'buy',2:'sell'})
                 self.tokens.append(rand_signals)
+            elif token=='' or token==' ':
+                continue
             else:
                 en_support={
                     'Date':'日期',
@@ -64,7 +69,7 @@ class Expression:
                 if token in en_support:
                     self.tokens.append(data[en_support[token]])
                 else:
-                    print('Invalid Expression')
+                    print('Invalid Expression.')
         # st.write(self.tokens)
 
     def doOp(self):
@@ -82,10 +87,10 @@ class Expression:
             signals=x.combine_first(y)
             # st.write(signals)
             self.values_stack.append(signals)
-        elif op == 'and' or op == 'AND':
+        elif op == 'and':
             signals=x.where(x==y,None)
             self.values_stack.append(signals)
-        elif op == 'or' or op== 'OR':
+        elif op == 'or':
             signals=np.where(x=='buy',True,False) | np.where(y=='buy',True,False)
             signals=np.where(signals,'buy',None)
             self.values_stack.append(signals)
@@ -122,21 +127,27 @@ class Expression:
             self.values_stack.append(x**y)
         # print(self.values_stack[-1],'==============\n==============',sep='\n')
     def repeatOps(self,op):
-        while len(self.values_stack)>1 and self.precedences[op]<=self.precedences[self.symbols_stack[-1]]:
+        while len(self.values_stack)>1 and self.precedences[op]<=self.precedences[self.symbols_stack[-1]] and self.symbols_stack[-1]!='(':
             #st.write(op)
             self.doOp()
             #st.write(self.values_stack[-1])
     def eval(self)->pd.DataFrame:
-        """
+        '''
         返回一个包括 日期 收盘 signals 三列的dataframe.
-        """
+        '''
         # st.write(self.tokens)
         for token in self.tokens:
             # print(token,type(token))
             if isinstance(token,str):
                 # print('===A str===')
-                self.repeatOps(token)
-                self.symbols_stack.append(token)
+                if token=='(':
+                    self.symbols_stack.append(token)
+                elif token==')':
+                    self.repeatOps('$')
+                    self.symbols_stack.pop() if self.symbols_stack[-1]=='(' else print("Invalid Expression.")
+                else:
+                    self.repeatOps(token)
+                    self.symbols_stack.append(token)
             elif isinstance(token,pd.Series) or isinstance(token,pd.DataFrame):
                 # print('===A dataframe===')
                 self.values_stack.append(token)
@@ -157,15 +168,6 @@ class Expression:
 
 
 
-
-
-
-
-
-
-
-
-
 ALL_STRATEGIES = ['SMA', 'MACD','AROON', 'RSI', 'BOLLING','KDJ','DMI','ROC','SMI', 'WPR', 'SAR','CCI', 'OBV', 'PVT', 'ARBR']
 """
 Strategies added here will be able to be selected
@@ -183,7 +185,7 @@ def apply_strategy(strategy:str, df:pd.DataFrame)->Expression:
         # 买入条件：MACD线向上穿过MACD信号线
         # 卖出条件：MACD线向下穿过MACD信号线
         exp = Expression(
-            'MACD_HIST crossup MACD_SIG | MACD_HIST crossdown MACD_SIG', df)
+            '( MACD_HIST crossup MACD_SIG ) | ( MACD_HIST crossdown MACD_SIG )', df)
     elif strategy == 'SMA':
         df["SMA10"] = tal.SMA(df["收盘"], 10)
         df["SMA20"] = tal.SMA(df["收盘"], 20)
@@ -191,7 +193,7 @@ def apply_strategy(strategy:str, df:pd.DataFrame)->Expression:
         # 买入条件：(SMA10向上穿过SMA20 且 SMA20>=SMA50) 或 (SMA20向上穿过SMA50 且 SMA10>=SMA20)
         # 卖出条件：(SMA10向上穿过SMA20 且 SMA20>=SMA50) 或 (SMA20向上穿过SMA50 且 SMA10>=SMA20)
         exp = Expression(
-            'SMA10 crossup SMA20 AND SMA20 >= SMA50 or SMA20 crossup SMA50 AND SMA10 >= SMA20 | SMA10 crossdown SMA20 AND SMA20 <= SMA50 or SMA20 crossdown SMA50 AND SMA10 <= SMA20', df)
+            '( SMA10 crossup SMA20 and SMA20 >= SMA50 ) or ( SMA20 crossup SMA50 and SMA10 >= SMA20 ) | ( SMA10 crossdown SMA20 and SMA20 <= SMA50 ) or ( SMA20 crossdown SMA50 and SMA10 <= SMA20 ) ', df)
     elif strategy=='AROON':
         Aroon(df)
         exp = Expression('Aroon_Up > 70 and Aroon_Down < 30 | Aroon_Up < 30 and Aroon_Down > 70', df)
@@ -305,9 +307,20 @@ def SMI(stockdata, period=14, ema_period=3, signal_period=5):
     # 计算SMI的信号线
     stockdata['signal_line'] = tal.EMA(stockdata['SMI'], timeperiod=signal_period)
 
-
-
-
+# 模块测试部分
+if __name__=='__main__':
+    _test_df=pd.read_csv("public_source/nasdaq100/AAPL.csv").head(100)
+    _test_df["SMA10"] = tal.SMA(_test_df["收盘"], 10)
+    _test_df["SMA20"] = tal.SMA(_test_df["收盘"], 20)
+    _test_df["SMA50"] = tal.SMA(_test_df["收盘"], 50)
+    # 买入条件：(SMA10向上穿过SMA20 且 SMA20>=SMA50) 或 (SMA20向上穿过SMA50 且 SMA10>=SMA20)
+    # 卖出条件：(SMA10向上穿过SMA20 且 SMA20>=SMA50) 或 (SMA20向上穿过SMA50 且 SMA10>=SMA20)
+    _test_exp = Expression(
+        '( ((SMA10 crossup SMA20 and SMA20 >= SMA50 )) or ( SMA20 crossup SMA50 and (SMA10 >= SMA20) )) | ( SMA10 crossdown SMA20 and SMA20 <= SMA50 ) or ( SMA20 crossdown SMA50 and SMA10 <= SMA20 ) ', _test_df)
+    print([(i if isinstance(i,str) else i.name) for i in _test_exp.tokens])
+    # print(_test_exp.data.to_string())
+    _test_exp=_test_exp.eval()
+    print(_test_exp.to_string())
 
 
 
