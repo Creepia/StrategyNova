@@ -17,7 +17,8 @@ class Expression:
         #### exp=Expression('MACD < 0 | MACD > 0',df) \n
         - Meaning the buy condition is MACD < 0, sell condition is MACD > 0.
         - The dataframe df should have 'MACD' column.
-        - Precedences of tokens: | or and OR AND > crossup + * **.
+        - Precedences of tokens: | or and > crossup + * **.
+        - You may use brackets to raise the precedence.
         - Use Signals=exp.eval() for getting the result.
         '''
         self.data=data
@@ -306,6 +307,11 @@ def SMI(stockdata, period=14, ema_period=3, signal_period=5):
     stockdata['SMI'] = stockdata['momentum'] - stockdata['momentum_ema']
     # 计算SMI的信号线
     stockdata['signal_line'] = tal.EMA(stockdata['SMI'], timeperiod=signal_period)
+
+
+
+
+
 
 # 模块测试部分
 if __name__=='__main__':
