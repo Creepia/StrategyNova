@@ -166,7 +166,7 @@ class Expression:
 
 
 
-ALL_STRATEGIES = ['SMA', 'MACD','AROON', 'RSI', 'BOLLING','KDJ','DMI','ROC','SMI', 'WPR', 'SAR','CCI', 'OBV']
+ALL_STRATEGIES = ['SMA', 'MACD','AROON', 'RSI', 'BOLLING','KDJ','DMI','ROC','SMI', 'WPR', 'SAR','CCI', 'OBV', 'PVT', 'ARBR']
 """
 Strategies added here will be able to be selected
 """
@@ -258,8 +258,30 @@ def apply_strategy(strategy:str, df:pd.DataFrame)->Expression:
                          收盘 > close_lag1 and close_lag1 > close_lag2 and close_lag2 > close_lag3 and close_lag3 > close_lag4 \
                           | OBV < OBV_lag1 and OBV_lag1 < OBV_lag2 and OBV_lag2 < OBV_lag3 and OBV_lag3 < OBV_lag4 and \
                          收盘 < close_lag1 and close_lag1 < close_lag2 and close_lag2 < close_lag3 and close_lag3 < close_lag4',df)
+    elif strategy == 'PVT':
+        df['PVT'] = ((df['收盘'] - df['收盘'].shift(1).fillna(0)) / df['收盘'].shift(1)) * df['成交量']
+        df['PVT'] = df['PVT'].fillna(0).cumsum()
+        df['PVT_lag1'] = df['PVT'].shift(1).fillna(0)
+        df['PVT_lag7'] = df['PVT'].shift(7).fillna(0)
+        df['close_lag1'] = df['收盘'].shift(1).fillna(0)
+        df['close_lag7'] = df['收盘'].shift(7).fillna(0)
+        # 共涨买入，共跌卖出
+        # PVT = [((CurrentClose - PreviousClose) / PreviousClose) x Volume] + PreviousPVT
+        exp = Expression('PVT > PVT_lag1 and 收盘 > close_lag1 | PVT < PVT_lag1 and 收盘 < close_lag1', df)
+        # 觉得这个策略很差劲。。
 
-
+    elif strategy == 'ARBR':
+        # AR人气指标 计算公式（以日为单位举例） AR = [N天所有（High-Open）的和/ N天所有（Open—Low）的和] * 100
+        # 查看人气程度，衡量市场上多空双方力量对比变化
+        df['AR'] = (df['最高'].rolling(26).sum() - df['开盘'].rolling(26).sum()) / (
+                    df['开盘'].rolling(26).sum() - df['最低'].rolling(26).sum()) * 100
+        # BR人气指标 计算公式（以日为单位举例） BR(n)=∑（当日最高价－昨日收盘价）÷∑（昨日收盘价－当日最低价）×100
+        df['BR'] = (df['最高'].rolling(26).sum() - df['收盘'].shift(1).rolling(26).sum()) / (
+                    df['收盘'].shift(1).rolling(26).sum() - df['最低'][1:].rolling(26).sum()) * 100
+        # BR < AR & & (BR[i] < 100 | | AR[i] < 60)， 买入
+        # if (AR[i] > 150 ，卖出
+        # 不完整！ 还有一种 buy的情况还没有加进去
+        exp = Expression('BR < AR and BR < 100 | AR > 150', df)
 
     return exp
 
