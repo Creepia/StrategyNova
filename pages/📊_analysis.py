@@ -75,7 +75,7 @@ def showAnalysisPage():
     # 主界面
     
 
-    tab_Dataframe, tab_Chart = st.tabs(['Dataframe', 'Chart'])
+    tab_Chart, tab_Dataframe = st.tabs(['Chart','Dataframe'])
 
     with tab_Dataframe:
         if (stock != 'ALL'):
@@ -113,7 +113,7 @@ def showAnalysisPage():
         if (stock != 'ALL'):
             # 示例数据
             # 在Streamlit页面上显示图表
-            # f'{df.iloc[0,0]}'
+            f'{df.iloc[0,0]}'
             st.write(f'''<h3 style="text-align:center;padding:0;">Buy and Sell Points Visualization</h3>''', unsafe_allow_html=True)
 
             buy_sell_points_graph=graph_buy_sell_points(df)
