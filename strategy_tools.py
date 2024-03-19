@@ -283,8 +283,7 @@ def apply_strategy(strategy:str, df:pd.DataFrame)->Expression:
                     df['收盘'].shift(1).rolling(26).sum() - df['最低'][1:].rolling(26).sum()) * 100
         # BR < AR & & (BR[i] < 100 | | AR[i] < 60)， 买入
         # if (AR[i] > 150 ，卖出
-        # 不完整！ 还有一种 buy的情况还没有加进去
-        exp = Expression('BR < AR and BR < 100 | AR > 150', df)
+        exp = Expression('BR < AR and ( BR < 100 or AR < 60 ) | AR > 150', df)
 
     return exp
 
